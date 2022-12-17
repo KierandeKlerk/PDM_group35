@@ -1,6 +1,5 @@
-<!-- This file is adapted from the urdf file provided in the assets of the pybullet-drones  -->
 <?xml version="1.0" ?>
-
+<!-- This file is adapted from the urdf file provided in the assets of the pybullet-drones  -->
 <robot name="cf2">
 
   <properties arm="0.0397" kf="3.16e-10" km="7.94e-12" thrust2weight="2.25" max_speed_kmh="30" gnd_eff_coeff="11.36859" prop_radius="2.31348e-2" drag_coeff_xy="9.1785e-7" drag_coeff_z="10.311e-7" dw_coeff_1="2267.18" dw_coeff_2=".16" dw_coeff_3="-.11" />
@@ -10,7 +9,7 @@
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <mass value="0.027"/>
-      <inertia ixx="0" ixy="0.0" ixz="0.0" iyy="0" iyz="0.0" izz="0"/>
+      <inertia ixx="0.0" ixy="0.0" ixz="0.0" iyy="0.0" iyz="0.0" izz="0.0"/>
     </inertial>
 
     <!-- links>
