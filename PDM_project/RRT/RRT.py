@@ -1,39 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
+from matplotlib.patches import Rectangle, Circle
 from scipy import interpolate
 import time
 
-class Map:
-    #Initializing self
-    def __init__(self, startpos, goalpos, mapdim):
-        self.start = startpos
-        self.goal = goalpos
-        self.mapdim = mapdim
-        self.mapw, self.maph = self.mapdim
-
-    #Creating the map
-    def makemap(self, obstacles):    #Obstacles of form: [leftx, bottomy, Height, width]
-        fig, ax = plt.subplots(1, 1)
-
-        #Adding start and goal points to the map
-        ax.scatter(self.start[0], self.start[1])
-        ax.scatter(self.goal[0], self.goal[1], marker = 'o', s = 500, alpha = 0.5)
-        
-        #Adding obstacles to the map
-        for i in range(len(obstacles)):
-            ax.add_patch(Rectangle((obstacles[i][0], obstacles[i][1]), obstacles[i][2], obstacles[i][3], color = '#454545'))
-
-        #Setting map size
-        plt.xlim([0, self.mapw])
-        plt.ylim([0, self.maph])
-
-        #Showing map
-        plt.show()    
-
 class RRT:
     #initializing self
-    def __init__(self, startpos, goalpos, mapdim, d_goal, d_search):
+    def __init__(self, startpos, goalpos, mapdim, d_goal, d_search, obstacles, max_iter):
         self.start = startpos
         self.goal = goalpos
         self.mapdim = mapdim
@@ -45,16 +18,19 @@ class RRT:
         self.edge = []
         self.path = []
         self.goalfound = False
+        self.max_iter = max_iter
         self.d_goal = d_goal
         self.d_search = d_search
+        self.iters= 0
+        self.obstacles = obstacles
         
 
-    def addobst(self, obstacles):
+    def addobst(self):
         #Adding obstacle coordinates to obsregion
-        for i in range(len(obstacles)):           
-            for x in range(obstacles[i][2]):
-                for y in range(obstacles[i][3]):
-                    self.obsregion.append((obstacles[i][0] + x, obstacles[i][1] + y))       
+        for i in range(len(self.obstacles)):           
+            for x in range(self.obstacles[i][2]):
+                for y in range(self.obstacles[i][3]):
+                    self.obsregion.append((self.obstacles[i][0] + x, self.obstacles[i][1] + y))       
 
     def addnode(self, x, y):
         #print('Add node (', x, ", ", y, ")")
@@ -98,17 +74,20 @@ class RRT:
     def nodefree(self, n):
         #print('Check node ', n)
         if ((self.x[n], self.y[n]) in self.obsregion):
+
             return False
+            
         else:
             return True  
 
     def edgefree(self, n1, n2):
         #print('Check edge between ', n1, "and", n2)
-        steps = np.linspace(0, 1, 100)
+        steps = np.linspace(0, 1, 30)
         for step in steps:
-            x = self.x[n1] * step + self.x[n2] * (1-step)
-            y = self.y[n1] * step + self.y[n2] * (1-step)
+            x = np.int64(self.x[n1] * step + self.x[n2] * (1-step))
+            y = np.int64(self.y[n1] * step + self.y[n2] * (1-step))
             if  (x, y) in self.obsregion:
+
                 return False
         return True
         
@@ -124,29 +103,37 @@ class RRT:
         self.addnode(x, y)
         n = len(self.x) - 1
         nnear = self.nearestnode(n)
-        if self.nodefree(n) and (self.distance(n, nnear) <= self.d_search) and self.edgefree(nnear, n):
+        if self.edgefree(nnear, n) and self.nodefree(n) and (self.distance(n, nnear) <= self.d_search):
             self.addedge(nnear, n)
             if self.goaldistance(n) <= self.d_goal:
                 self.goalfound = True
         else: 
+            
             self.removenode(n)
-
     
     def pathfound(self):
-        if self.goalfound: print("Path found in", len(self.x), 'steps')
+        if self.goalfound: 
+            print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
         return self.goalfound
+
+    def iterations(self):
+        self.iters += 1
+        if self.iters < self.max_iter:
+            return True
+        else: 
+            print("No goal found after ", self.iters, " iterations :(")
+            return False
     
     #Creating the map
-    def makemap(self, obstacles):    #Obstacles of form: [leftx, bottomy, Height, width]
+    def makemap(self):    #Obstacles of form: [leftx, bottomy, Height, width]
         fig, ax = plt.subplots(1, 1)
 
         #Adding start and goal points to the map
         ax.scatter(self.start[0], self.start[1])
-        ax.scatter(self.goal[0], self.goal[1], marker = 'o', s = 500, alpha = 0.5)
-        
+        ax.add_patch(plt.Circle(self.goal, self.d_goal, ec = '#FFA500', fill = False, lw = 5))
         #Adding obstacles to the map
-        for i in range(len(obstacles)):
-            ax.add_patch(Rectangle((obstacles[i][0], obstacles[i][1]), obstacles[i][2], obstacles[i][3], color = '#454545'))
+        for i in range(len(self.obstacles)):
+            ax.add_patch(Rectangle((self.obstacles[i][0], self.obstacles[i][1]), self.obstacles[i][2], self.obstacles[i][3], color = '#454545'))
 
         #Adding nodes
         for i in range(1, len(self.x)):
@@ -165,28 +152,24 @@ class RRT:
 
         #Showing map
         plt.show()   
-
     
 #Tests
-start = np.array([50, 10])
-goal = np.array([170, 80])
+start = np.array([15, 10])
+goal = np.array([180, 80])
 mapdim = (200, 100)
 dgoal = 10
 dsearch = 30
+max_iter = 20000
 obstacles = []
-obstacles.append(np.array([10, 10, 20, 20], dtype = object))
-obstacles.append(np.array([60, 60, 30, 10], dtype = object))
-obstacles.append(np.array([75, 0, 20, 60], dtype = object))
+obstacles.append(np.array([40, 0, 20, 60], dtype = object))
+obstacles.append(np.array([130, 40, 20, 60], dtype = object))
+#obstacles.append(np.array([70, 0, 20, 40], dtype = object))
 
-map = Map(start, goal, mapdim)
-map.makemap(obstacles)
-
-graph = RRT(start, goal, mapdim, dgoal, dsearch)
-graph.addobst(obstacles)
-t1 = time.time()
-while not graph.pathfound():
-    time.sleep(0.005)
-    elapsed = time.time() -t1
-    t1 = time.time()
+graph = RRT(start, goal, mapdim, dgoal, dsearch, obstacles, max_iter)
+graph.addobst()
+graph.makemap()
+iterations = 0
+max_iter = 20
+while not graph.pathfound() and graph.iterations():
     graph.expand()
-graph.makemap(obstacles)
+graph.makemap()
