@@ -6,48 +6,57 @@ from scipy import interpolate
 class RRT:
     #initializing self
     def __init__(self, startpos, goalpos, mapdim, d_goal, d_search, obstacles, max_iter):
+        #Initializing map parameters
         self.start = startpos
         self.goal = goalpos
-        self.mapdim = mapdim
-        self.mapw, self.maph = self.mapdim
+        self.mapw, self.maph = mapdim
+        #Initializing obstacle parameters
+        self.obstacles = obstacles
+        self.obsregion = []
+        #Initializing node coordinates
         self.x = [startpos[0]]
         self.y = [startpos[1]]
-        self.obsregion = []
-        self.edge = [0]
-        self.path = []
-        self.goalfound = False
-        self.max_iter = max_iter
+        #Initializing edge parameters
+        self.parent = [0] #Gives nodenumber of parent
+        self.path = [] #Gives nodenumbers of final path to goal
+        #Initializing search parameters
         self.d_goal = d_goal
         self.d_search = d_search
+        #Initializing iterations
         self.iters= 0
-        self.obstacles = obstacles
-        
+        self.max_iter = max_iter
+        #Initializing goalfound parameter
+        self.goalfound = False       
 
+    #Function to add obstacles to obstacle space
     def addobst(self):
-        #Adding obstacle coordinates to obsregion
         for i in range(len(self.obstacles)):           
             for x in range(self.obstacles[i][2]):
                 for y in range(self.obstacles[i][3]):
                     self.obsregion.append((self.obstacles[i][0] + x, self.obstacles[i][1] + y))       
 
+    #Function to add a node to the list
     def addnode(self, x, y):
         #print('Add node (', x, ", ", y, ")")
         self.x.append(x)
         self.y.append(y)
     
+    #Function to remove the nth node from the list
     def removenode(self, n):
         #print('remove node ', n)
         self.x.pop(n)
         self.y.pop(n)
 
+    #Function to add an edge between the parent and the child node
     def addedge(self, nparent):
-        #print('Add edge between', nparent, ' and ', nchild)
-        self.edge.append(nparent)
-        
+        self.parent.append(nparent)
+    
+    #Function to remove an edge
     def removeedge(self, n):
         #print('remove edge ', n)
-        self.edge.pop(n)
+        self.parent.pop(n)
     
+    #Function to calculate the distance between nodes n1 and n2
     def distance(self, n1, n2):
         dx = (self.x[n1] - self.x[n2])
         dy = (self.y[n1] - self.y[n2])
@@ -55,6 +64,7 @@ class RRT:
         #print('Distance between ', n1, " and ", n2, ": ", distance)
         return distance
 
+    #Function to calculate the distance to the endgoal
     def goaldistance(self, n):
         dx = (self.x[n] - self.goal[0])
         dy = (self.y[n] - self.goal[1])
@@ -62,6 +72,7 @@ class RRT:
         #print('Distance between ', n, " and the goal: ", distance)
         return distance
 
+    #Function to calculate which node is the closest
     def nearestnode(self, n):
         distances = np.zeros(n)
         for i in range(n):
@@ -69,6 +80,7 @@ class RRT:
         #print("Node nearest to ", n, ": ", np.argmin(distances))
         return np.argmin(distances)
 
+    #Function to check if the node is in the free space
     def nodefree(self, n):
         #print('Check node ', n)
         if ((self.x[n], self.y[n]) in self.obsregion):
@@ -76,6 +88,7 @@ class RRT:
         else:
             return True  
 
+    #Function to check if the edge is in the free space
     def edgefree(self, n1, n2):
         #print('Check edge between ', n1, "and", n2)
         steps = np.linspace(0, 1, np.int64(self.distance(n1, n2)))
@@ -85,13 +98,15 @@ class RRT:
             if  (x, y) in self.obsregion:
                 return False
         return True
-        
+    
+    #Function to take a random sample in the map
     def randomsample(self):
         #print('Take random sample')
         x = np.random.randint(0, self.mapw)
         y = np.random.randint(0, self.maph)
         return (x, y)
 
+    #Function to expand the graph
     def expand(self):
         #print('Expand')
         (x, y) = self.randomsample()
@@ -105,32 +120,34 @@ class RRT:
                 self.addedge(n)
                 self.goalfound = True
         else: 
-            
             self.removenode(n)
 
+    #Function to calculate the cost to reach a node from the start
     def reachcost(self, n):
-        nparent = self.edge[n]
+        nparent = self.parent[n]
         cost = 0
         while n != 0:
             cost += self.distance(n, nparent)
             n = nparent
-            nparent = self.edge[n]
+            nparent = self.parent[n]
         return cost   
     
+    #Function to check if the goal is found, and to collect the nodes on the path
     def pathfound(self):
         if self.goalfound: 
             self.path = []
             ngoal = len(self.x)-1
             self.path.append(ngoal)
-            nparent = self.edge[ngoal]
+            nparent = self.parent[ngoal]
             while nparent != 0:
                 self.path.append(nparent)
-                nparent = self.edge[nparent]
+                nparent = self.parent[nparent]
             self.path.append(0)
             print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
             print("Cost to reach goal: ", self.reachcost(len(self.x)-1))
         return self.goalfound
 
+    #Function to count the iterations
     def iterations(self):
         self.iters += 1
         if self.iters < self.max_iter:
@@ -139,13 +156,14 @@ class RRT:
             print("No goal found after ", self.iters, " iterations :(")
             return False
     
+    #Function to get the path to the goal
     def getpath(self):
         path = []
-        
         for i in self.path:
             path.append((self.x[i], self.y[i]))
         return path
 
+    #Function to get a smooth path to the goal
     def getsmoothpath(self):
         self.smoothpath = []
         if self.goalfound:
@@ -158,11 +176,9 @@ class RRT:
                 y.append(coords[i][1])
             tck, _ = interpolate.splprep([x, y])
             self.smoothpath = interpolate.splev(u, tck)
-        
 
-
-    #Creating the map
-    def makemap(self):    #Obstacles of form: [leftx, bottomy, Height, width]
+    #Function to visualize the map and graph
+    def makemap(self):   
         fig, ax = plt.subplots(1, 1)
 
         #Adding start and goal points to the map
@@ -172,7 +188,7 @@ class RRT:
         for i in range(len(self.obstacles)):
             ax.add_patch(Rectangle((self.obstacles[i][0], self.obstacles[i][1]), self.obstacles[i][2], self.obstacles[i][3], color = '#454545'))
 
-        #Adding nodes
+        #Adding nodes to the map
         for i in range(1, len(self.x)):
             if i in self.path:
                 ax.scatter(self.x[i], self.y[i], color = '#FF0000')
@@ -180,16 +196,16 @@ class RRT:
                 ax.scatter(self.x[i], self.y[i], color = '#000000')
             #ax.text(self.x[i], self.y[i], i)
 
-        #Adding edges
-        for i in range(1, len(self.edge)):
-            x_values = [self.x[i], self.x[self.edge[i]]]
-            y_values = [self.y[i], self.y[self.edge[i]]]
+        #Adding edges to the map
+        for i in range(1, len(self.parent)):
+            x_values = [self.x[i], self.x[self.parent[i]]]
+            y_values = [self.y[i], self.y[self.parent[i]]]
             if i in self.path:
                 ax.plot(x_values, y_values, color = '#FF0000')
             else:
                 ax.plot(x_values, y_values, color = '#000000')
 
-        #Adding smooth path
+        #Adding smooth path to the map
         self.getsmoothpath()
         coords = self.smoothpath
         if len(coords) != 0:
