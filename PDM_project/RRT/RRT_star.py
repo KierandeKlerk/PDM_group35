@@ -246,17 +246,23 @@ class RRTstar:
         plt.show()   
     
 #Tests
-start = np.array([15, 10])
+start = np.array([10, 10])
 goal = np.array([180, 80])
 mapdim = (200, 100)
 dgoal = 10
 dsearch = 20
 dcheaper = 30
-max_iter = 2000
+max_iter = 5000
 obstacles = []
-obstacles.append(np.array([40, 0, 20, 60], dtype = object))
-obstacles.append(np.array([130, 40, 20, 60], dtype = object))
-#obstacles.append(np.array([70, 0, 20, 40], dtype = object))
+obstacles.append(np.array([35, 0, 10, 70], dtype = object))
+obstacles.append(np.array([35, 70, 80, 10], dtype = object))
+obstacles.append(np.array([105, 50, 10, 30], dtype = object))
+
+obstacles.append(np.array([135, 30, 10, 80], dtype = object))
+obstacles.append(np.array([85, 20, 90, 10], dtype = object))
+obstacles.append(np.array([75, 20, 10, 30], dtype = object))
+
+obstacles.append(np.array([160, 50, 40, 10], dtype = object))
 
 graph = RRTstar(start, goal, mapdim, dgoal, dsearch, dcheaper, obstacles, max_iter)
 graph.addobst()
