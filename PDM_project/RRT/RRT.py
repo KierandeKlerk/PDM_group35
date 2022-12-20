@@ -2,10 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from scipy import interpolate
+import time
 
 class RRT:
     #initializing self
-    def __init__(self, startpos, goalpos, mapdim, d_goal, d_search, obstacles, max_iter):
+    def __init__(self, startpos, goalpos, mapdim, d_goal, d_search, obstacles, obsmargin, max_iter):
         #Initializing map parameters
         self.start = startpos
         self.goal = goalpos
@@ -13,6 +14,7 @@ class RRT:
         #Initializing obstacle parameters
         self.obstacles = obstacles
         self.obsregion = []
+        self.obsmargin = obsmargin
         #Initializing node coordinates
         self.x = [startpos[0]]
         self.y = [startpos[1]]
@@ -31,9 +33,10 @@ class RRT:
     #Function to add obstacles to obstacle space
     def addobst(self):
         for i in range(len(self.obstacles)):           
-            for x in range(self.obstacles[i][2]):
-                for y in range(self.obstacles[i][3]):
-                    self.obsregion.append((self.obstacles[i][0] + x, self.obstacles[i][1] + y))       
+            for x in range(self.obstacles[i][2] + 2 * self.obsmargin):
+                for y in range(self.obstacles[i][3] + 2 * self.obsmargin):
+                    self.obsregion.append((self.obstacles[i][0] - self.obsmargin + x, self.obstacles[i][1] - self.obsmargin + y))       
+
 
     #Function to add a node to the list
     def addnode(self, x, y):
@@ -220,20 +223,30 @@ class RRT:
         plt.show()   
     
 #Tests
-start = np.array([15, 10])
-goal = np.array([180, 80])
+starttime = time.time()
+start = np.array([10, 10])
+goal = np.array([180, 85])
 mapdim = (200, 100)
 dgoal = 10
-dsearch = 30
-max_iter = 20000
+dsearch = 20
+max_iter = 6000
+obsmargin = 3
 obstacles = []
-obstacles.append(np.array([40, 0, 20, 60], dtype = object))
-obstacles.append(np.array([130, 40, 20, 60], dtype = object))
-#obstacles.append(np.array([70, 0, 20, 40], dtype = object))
+obstacles.append(np.array([35, 0, 10, 70], dtype = object))
+obstacles.append(np.array([35, 70, 80, 10], dtype = object))
+obstacles.append(np.array([105, 50, 10, 30], dtype = object))
 
-graph = RRT(start, goal, mapdim, dgoal, dsearch, obstacles, max_iter)
+obstacles.append(np.array([135, 30, 10, 80], dtype = object))
+obstacles.append(np.array([85, 20, 90, 10], dtype = object))
+obstacles.append(np.array([75, 20, 10, 30], dtype = object))
+
+obstacles.append(np.array([160, 50, 40, 10], dtype = object))
+
+graph = RRT(start, goal, mapdim, dgoal, dsearch, obstacles, obsmargin, max_iter)
 graph.addobst()
 graph.makemap()
 while not graph.pathfound() and graph.iterations():
     graph.expand()
+endtime = time.time()
+print("Time elapsed: ", endtime - starttime)
 graph.makemap()
