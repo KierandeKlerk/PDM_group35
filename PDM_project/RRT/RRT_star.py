@@ -13,7 +13,6 @@ class RRTstar:
         self.mapw, self.maph = mapdim
         #Initializing obstacle parameters
         self.obstacles = obstacles
-        self.obsregion = []
         self.obsmargin = obsmargin
         #Initializing node coordinates
         self.x = [startpos[0]]
@@ -29,16 +28,19 @@ class RRTstar:
         self.iters= 0
         self.max_iter = max_iter
         #Initializing goalfound parameter
-        self.goalfound = False       
+        self.goalfound = False        
+
+    #Function to check if a point is free of obstacles
+    def isfree(self, x, y):
+        free = True
+        i = 0
+        nobst = len(self.obstacles)
+        while free and i < nobst:
+            if ((self.obstacles[i][0] - self.obsmargin) <= x <= (self.obstacles[i][2] + self.obsmargin)) and ((self.obstacles[i][1]- self.obsmargin) <= y <= (self.obstacles[i][3] + self.obsmargin)):
+                free = False
+            i += 1
+        return free
         
-
-    #Function to add obstacles to obstacle space
-    def addobst(self):
-        for i in range(len(self.obstacles)):           
-            for x in range(self.obstacles[i][2] + 2 * self.obsmargin):
-                for y in range(self.obstacles[i][3] + 2 * self.obsmargin):
-                    self.obsregion.append((self.obstacles[i][0] - self.obsmargin + x, self.obstacles[i][1] - self.obsmargin + y))       
-
     #Function to add a node to the list
     def addnode(self, x, y):
         #print('Add node (', x, ", ", y, ")")
@@ -88,10 +90,7 @@ class RRTstar:
     #Function to check if the node is in the free space
     def nodefree(self, n):
         #print('Check node ', n)
-        if ((self.x[n], self.y[n]) in self.obsregion):
-            return False  
-        else:
-            return True  
+        return self.isfree(self.x[n], self.y[n])
 
     #Function to check if the edge is in the free space
     def edgefree(self, n1, n2):
@@ -100,7 +99,7 @@ class RRTstar:
         for step in steps:
             x = np.int64(self.x[n1] * step + self.x[n2] * (1-step))
             y = np.int64(self.y[n1] * step + self.y[n2] * (1-step))
-            if  (x, y) in self.obsregion:
+            if self.isfree(x, y) == False:
                 return False
         return True
     
@@ -117,10 +116,9 @@ class RRTstar:
         (x, y) = self.randomsample()
         self.addnode(x, y)
         n = len(self.x) - 1
-        #print("Nodenumber", n, ": (", x, y, ")")
         distances = self.distances(n)
         nnear = np.argmin(distances)
-        if self.edgefree(nnear, n) and self.nodefree(n) and (self.distance(n, nnear) <= self.d_search):
+        if self.edgefree(nnear, n) and (self.distance(n, nnear) <= self.d_search):
             self.addedge(nnear)
             cheapernode = self.cheapernodes(n)
             if cheapernode != nnear:
@@ -179,6 +177,8 @@ class RRTstar:
     #Function to count the iterations
     def iterations(self):
         self.iters += 1
+        # if self.iters % 50 == 0:
+        #     print("iteration ", self.iters)
         if self.iters < self.max_iter:
             return True
         else: 
@@ -215,14 +215,14 @@ class RRTstar:
         ax.add_patch(plt.Circle(self.goal, self.d_goal, ec = '#FFA500', fill = False, lw = 5))
         #Adding obstacles to the map
         for i in range(len(self.obstacles)):
-            ax.add_patch(Rectangle((self.obstacles[i][0], self.obstacles[i][1]), self.obstacles[i][2], self.obstacles[i][3], color = '#454545'))
+            ax.add_patch(Rectangle((self.obstacles[i][0], self.obstacles[i][1]), (self.obstacles[i][2] - self.obstacles[i][0]), (self.obstacles[i][3] - self.obstacles[i][1]), color = '#454545'))
 
-        #Adding nodes to the map
-        for i in range(1, len(self.x)):
-            if i in self.path:
-                ax.scatter(self.x[i], self.y[i], color = '#FF0000')
-            else: 
-                ax.scatter(self.x[i], self.y[i], color = '#000000')
+        # #Adding nodes to the map
+        # for i in range(1, len(self.x)):
+        #     if i in self.path:
+        #         ax.scatter(self.x[i], self.y[i], color = '#FF0000')
+        #     else: 
+        #         ax.scatter(self.x[i], self.y[i], color = '#000000')
 
         #Adding edges to the map
         for i in range(1, len(self.parent)):
@@ -250,26 +250,47 @@ class RRTstar:
 #Tests
 starttime = time.time()
 start = np.array([10, 10])
-goal = np.array([125, 85])
-mapdim = (200, 100)
+goal = np.array([187, 15])
+mapdim = (200, 145)
 dgoal = 10
-dsearch = 20
-dcheaper = 30
-max_iter = 2000
+dsearch = 15
+dcheaper = 25
+max_iter = 10000
 obsmargin = 3
 obstacles = []
-obstacles.append(np.array([35, 0, 10, 70], dtype = object))
-obstacles.append(np.array([35, 70, 80, 10], dtype = object))
-obstacles.append(np.array([105, 50, 10, 30], dtype = object))
 
-obstacles.append(np.array([135, 30, 10, 80], dtype = object))
-obstacles.append(np.array([85, 20, 90, 10], dtype = object))
-obstacles.append(np.array([75, 20, 10, 30], dtype = object))
+##Map 3
+obstacles.append(np.array([25, 0, 30, 25], dtype = object))
+obstacles.append(np.array([0, 55, 60, 60], dtype = object))
+obstacles.append(np.array([55, 20, 60, 60], dtype = object))
+obstacles.append(np.array([110, 25, 145, 30], dtype = object))
+obstacles.append(np.array([85, 0, 90, 125], dtype = object))
+obstacles.append(np.array([25, 85, 90, 90], dtype = object))
+obstacles.append(np.array([25, 90, 30, 125], dtype = object))
+obstacles.append(np.array([145, 55, 175, 60], dtype = object))
+obstacles.append(np.array([55, 110, 60, 145], dtype = object))
+obstacles.append(np.array([110, 25, 115, 145], dtype = object))
+obstacles.append(np.array([145, 60, 150, 125], dtype = object))
+obstacles.append(np.array([170, 0, 175, 55], dtype = object))
+obstacles.append(np.array([150, 120, 180, 125], dtype = object))
+obstacles.append(np.array([170, 95, 200, 100], dtype = object))
 
-obstacles.append(np.array([160, 50, 40, 10], dtype = object))
+##MAP 2
+# obstacles.append(np.array([30, 0, 35, 70], dtype = object))
+# obstacles.append(np.array([30, 70, 110, 75], dtype = object))
+# obstacles.append(np.array([105, 50, 110, 70], dtype = object))
+# obstacles.append(np.array([135, 25, 140, 110], dtype = object))
+# obstacles.append(np.array([75, 20, 175, 25], dtype = object))
+# obstacles.append(np.array([75, 20, 80, 50], dtype = object))
+# obstacles.append(np.array([160, 50, 200, 55], dtype = object))
+# obstacles.append(np.array([160, 55, 165, 80], dtype = object))
+
+##MAP 1
+# obstacles.append(np.array([40, 0, 50, 50], dtype = object))
+# obstacles.append(np.array([90, 50, 100, 100], dtype = object))
 
 graph = RRTstar(start, goal, mapdim, dgoal, dsearch, dcheaper, obstacles, obsmargin, max_iter)
-graph.addobst()
+#graph.addobst()
 graph.makemap()
 while not graph.pathfound() and graph.iterations():
     graph.expand()
