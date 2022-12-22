@@ -32,16 +32,16 @@ class RRTstar:
         #Initializing goalfound parameter
         self.goalfound = False       
         
-
-    #Function to add obstacles to obstacle space
-    def addobst(self):
-        for i in range(len(self.obstacles)):           
-            for x in range(self.obstacles[i][3] + 2 * self.obsmargin):
-                for y in range(self.obstacles[i][4] + 2 * self.obsmargin):
-                    for z in range(self.obstacles[i][5] + 2 * self.obsmargin):
-                        self.obsregion.append((self.obstacles[i][0] - self.obsmargin + x, 
-                        self.obstacles[i][1] - self.obsmargin + y,
-                        self.obstacles[i][2] - self.obsmargin + z))       
+    #Function to check if a point is free of obstacles
+    def isfree(self, x, y, z):
+        free = True
+        i = 0
+        nobst = len(self.obstacles)
+        while free and i < nobst:
+            if ((self.obstacles[i][0] - self.obsmargin) <= x <= (self.obstacles[i][3] + self.obsmargin)) and ((self.obstacles[i][1]- self.obsmargin) <= y <= (self.obstacles[i][4] + self.obsmargin)) and ((self.obstacles[i][2] - self.obsmargin) <= z <= (self.obstacles[i][5] + self.obsmargin)):
+                free = False
+            i += 1
+        return free
 
     #Function to add a node to the list
     def addnode(self, x, y, z):
@@ -96,10 +96,7 @@ class RRTstar:
     #Function to check if the node is in the free space
     def nodefree(self, n):
         #print('Check node ', n)
-        if ((self.x[n], self.y[n], self.y[n]) in self.obsregion):
-            return False  
-        else:
-            return True  
+        return self.isfree(self.x[n], self.y[n], self.z[n])
 
     #Function to check if the edge is in the free space
     def edgefree(self, n1, n2):
@@ -109,7 +106,7 @@ class RRTstar:
             x = np.int64(self.x[n1] * step + self.x[n2] * (1-step))
             y = np.int64(self.y[n1] * step + self.y[n2] * (1-step))
             z = np.int64(self.z[n1] * step + self.z[n2] * (1-step))
-            if  (x, y, z) in self.obsregion:
+            if self.isfree(x, y, z) == False:
                 return False
         return True
     
@@ -244,8 +241,8 @@ class RRTstar:
             z_values = [self.z[i], self.z[self.parent[i]]]
             if i in self.path:
                 ax.plot(x_values, y_values, z_values, color = '#FF0000')
-            else:
-                ax.plot(x_values, y_values, z_values, color = '#000000')
+            # else:
+            #     ax.plot(x_values, y_values, z_values, color = '#000000')
 
         # #Adding smooth path to the map
         # self.getsmoothpath()
@@ -264,25 +261,20 @@ class RRTstar:
     
 #Tests
 starttime = time.time()
-start = np.array([10, 10, 10])
-goal = np.array([70, 70, 70])
-mapdim = (100, 100, 100)
+start = np.array([10, 50, 50])
+goal = np.array([190, 50, 50])
+mapdim = (150, 100, 100)
 dgoal = 10
 dsearch = 20
 dcheaper = 30
-max_iter = 6000
+max_iter = 20000
 obsmargin = 3
 obstacles = []
-#obstacles.append(np.array([30, 0, 0, 1, 50, 40]))
-# obstacles.append(np.array([35, 0, 10, 70], dtype = object))
-# obstacles.append(np.array([35, 70, 80, 10], dtype = object))
-# obstacles.append(np.array([105, 50, 10, 30], dtype = object))
+obstacles.append(np.array([45, 0, 0, 50, 70, 100], dtype = object))
+obstacles.append(np.array([45, 70, 0, 50, 100, 70], dtype = object))
+obstacles.append(np.array([95, 0, 0, 100, 30, 70], dtype = object))
+obstacles.append(np.array([95, 30, 0, 100, 100, 100], dtype = object))
 
-# obstacles.append(np.array([135, 30, 10, 80], dtype = object))
-# obstacles.append(np.array([85, 20, 90, 10], dtype = object))
-# obstacles.append(np.array([75, 20, 10, 30], dtype = object))
-
-# obstacles.append(np.array([160, 50, 40, 10], dtype = object))
 
 graph = RRTstar(start, goal, mapdim, dgoal, dsearch, dcheaper, obstacles, obsmargin, max_iter)
 #graph.addobst()
