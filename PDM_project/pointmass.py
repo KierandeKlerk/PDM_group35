@@ -3,6 +3,8 @@ import time
 import pybullet_data
 import pkg_resources
 import numpy as np
+
+from quadrotor_project.envs.PointMassAviary import PointMassAviary
 grav = 10
 physicsClient = p.connect(p.GUI)
 p.setAdditionalSearchPath(pybullet_data.getDataPath())
@@ -22,3 +24,6 @@ for i in range (10000):
 cubePos, cubeOrn = p.getBasePositionAndOrientation(droneid)
 print(cubePos,cubeOrn)
 p.disconnect()
+
+# env = PointMassAviary()
+# print(env.DRONE_MODEL.value)
