@@ -251,7 +251,7 @@ class RRTstar:
 starttime = time.time()
 start = np.array([10, 10])
 goal = np.array([187, 15])
-mapdim = (200, 145)
+mapdim = (200, 100) #145
 dgoal = 10
 dsearch = 15
 dcheaper = 25
@@ -260,30 +260,30 @@ obsmargin = 3
 obstacles = []
 
 ##Map 3
-obstacles.append(np.array([25, 0, 30, 25], dtype = object))
-obstacles.append(np.array([0, 55, 60, 60], dtype = object))
-obstacles.append(np.array([55, 20, 60, 60], dtype = object))
-obstacles.append(np.array([110, 25, 145, 30], dtype = object))
-obstacles.append(np.array([85, 0, 90, 125], dtype = object))
-obstacles.append(np.array([25, 85, 90, 90], dtype = object))
-obstacles.append(np.array([25, 90, 30, 125], dtype = object))
-obstacles.append(np.array([145, 55, 175, 60], dtype = object))
-obstacles.append(np.array([55, 110, 60, 145], dtype = object))
-obstacles.append(np.array([110, 25, 115, 145], dtype = object))
-obstacles.append(np.array([145, 60, 150, 125], dtype = object))
-obstacles.append(np.array([170, 0, 175, 55], dtype = object))
-obstacles.append(np.array([150, 120, 180, 125], dtype = object))
-obstacles.append(np.array([170, 95, 200, 100], dtype = object))
+# obstacles.append(np.array([25, 0, 30, 25], dtype = object))
+# obstacles.append(np.array([0, 55, 60, 60], dtype = object))
+# obstacles.append(np.array([55, 20, 60, 60], dtype = object))
+# obstacles.append(np.array([110, 25, 145, 30], dtype = object))
+# obstacles.append(np.array([85, 0, 90, 125], dtype = object))
+# obstacles.append(np.array([25, 85, 90, 90], dtype = object))
+# obstacles.append(np.array([25, 90, 30, 125], dtype = object))
+# obstacles.append(np.array([145, 55, 175, 60], dtype = object))
+# obstacles.append(np.array([55, 110, 60, 145], dtype = object))
+# obstacles.append(np.array([110, 25, 115, 145], dtype = object))
+# obstacles.append(np.array([145, 60, 150, 125], dtype = object))
+# obstacles.append(np.array([170, 0, 175, 55], dtype = object))
+# obstacles.append(np.array([150, 120, 180, 125], dtype = object))
+# obstacles.append(np.array([170, 95, 200, 100], dtype = object))
 
 ##MAP 2
-# obstacles.append(np.array([30, 0, 35, 70], dtype = object))
-# obstacles.append(np.array([30, 70, 110, 75], dtype = object))
-# obstacles.append(np.array([105, 50, 110, 70], dtype = object))
-# obstacles.append(np.array([135, 25, 140, 110], dtype = object))
-# obstacles.append(np.array([75, 20, 175, 25], dtype = object))
-# obstacles.append(np.array([75, 20, 80, 50], dtype = object))
-# obstacles.append(np.array([160, 50, 200, 55], dtype = object))
-# obstacles.append(np.array([160, 55, 165, 80], dtype = object))
+obstacles.append(np.array([30, 0, 35, 70], dtype = object))
+obstacles.append(np.array([30, 70, 110, 75], dtype = object))
+obstacles.append(np.array([105, 50, 110, 70], dtype = object))
+obstacles.append(np.array([135, 25, 140, 110], dtype = object))
+obstacles.append(np.array([75, 20, 175, 25], dtype = object))
+obstacles.append(np.array([75, 20, 80, 50], dtype = object))
+obstacles.append(np.array([160, 50, 200, 55], dtype = object))
+obstacles.append(np.array([160, 55, 165, 80], dtype = object))
 
 ##MAP 1
 # obstacles.append(np.array([40, 0, 50, 50], dtype = object))
