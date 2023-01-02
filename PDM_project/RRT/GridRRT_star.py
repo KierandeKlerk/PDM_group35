@@ -57,16 +57,17 @@ class GridRRTstar:
     ####### Functions to handle obstacles in the map #######
 
     #Function to check if a point is free of obstacles
-    def isfree(self, x, y, margin=2):
+    def isfree(self, x, y, margin=0):
         ps = []
         for i in range(margin+1):
-            for j in range(margin+1):
-                xmargin = min(max(x+i,0), self.mapw-1)
-                ymargin = min(max(y+i,0), self.maph-1)
-                xmargin2 = min(max(x-i,0), self.mapw-1)
-                ymargin2 = min(max(y-i,0), self.maph-1)
-                ps.append(self.grid[xmargin2][ymargin2])
-                ps.append(self.grid[xmargin][ymargin])
+            xmargin = min(max(x+i,0), self.mapw-1)
+            ymargin = min(max(y+i,0), self.maph-1)
+            xmargin2 = min(max(x-i,0), self.mapw-1)
+            ymargin2 = min(max(y-i,0), self.maph-1)
+            ps.append(self.grid[xmargin2][ymargin2])
+            ps.append(self.grid[xmargin][ymargin])
+            if self.grid[xmargin2][ymargin2] + self.grid[xmargin][ymargin] > 0:
+                return False
         if sum(ps) == 0:
             return True
         else:
