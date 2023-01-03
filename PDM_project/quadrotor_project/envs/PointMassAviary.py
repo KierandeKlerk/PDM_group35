@@ -454,8 +454,9 @@ class PointMassAviary(gym.Env):
 
         """
         if self.RECORD and self.GUI:
+
             self.VIDEO_ID = p.startStateLogging(loggingType=p.STATE_LOGGING_VIDEO_MP4,
-                                                fileName=os.path.join(self.OUTPUT_FOLDER, "recording_" + datetime.now().strftime("%m.%d.%Y_%H.%M.%S"), "output.mp4"),
+                                                fileName=os.path.join(self.OUTPUT_FOLDER, "recordings", "output"+datetime.now().strftime("%m.%d.%Y_%H.%M.%S")+".mp4"),
                                                 physicsClientId=self.CLIENT
                                                 )
         if self.RECORD and not self.GUI:

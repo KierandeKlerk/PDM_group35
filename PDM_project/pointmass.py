@@ -15,13 +15,13 @@ from gym_pybullet_drones.utils.utils import sync
 drone = DroneModel("cf2p")
 physics = Physics("dyn")
 gui = True
+record = False
 aggregate = True
 obstacles = False
 simulation_freq_hz = 240
 control_freq_hz = 48
 duration_sec = 12
 output_folder = 'results'
-
 periodic = False # Controls whether the drone starts over when reaching the last target waypoint
 
 ### Initial pose ###
@@ -32,7 +32,7 @@ AGGR_PHY_STEPS = int(simulation_freq_hz/control_freq_hz) if aggregate else 1
 ### Target position calculation (to be replaced with data from RRT) ###
 R = 0.6
 
-TRACK_TIME = 3
+TRACK_TIME = 4
 NUM_WAY_POINTS = TRACK_TIME*control_freq_hz
 print("Number of waypoints {}".format(NUM_WAY_POINTS))
 TARGET_POS = np.zeros((NUM_WAY_POINTS,3))
@@ -48,6 +48,7 @@ env = PointMassAviary(drone_model=drone,
                       freq=simulation_freq_hz,
                       aggregate_phy_steps=AGGR_PHY_STEPS,
                       gui=gui,
+                      record=record,
                       obstacles=obstacles,
                       output_folder=output_folder)
 
@@ -81,7 +82,6 @@ for i in range(0, int(duration_sec*env.SIM_FREQ), AGGR_PHY_STEPS):
                 wp_counter = wp_counter + 1 if wp_counter < NUM_WAY_POINTS-1 else 0
             else:
                 wp_counter += 1 if wp_counter < NUM_WAY_POINTS-1 else 0
-                
         ### Printout data ###
         if i%env.SIM_FREQ == 0:
             env.render()
