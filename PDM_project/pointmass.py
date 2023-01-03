@@ -22,6 +22,8 @@ control_freq_hz = 48
 duration_sec = 12
 output_folder = 'results'
 
+periodic = False # Controls whether the drone starts over when reaching the last target waypoint
+
 ### Initial pose ###
 INIT_XYZ = np.array([0,0,0.8], dtype=float)
 INIT_RPY = np.array([0,0,0], dtype=float)
@@ -75,7 +77,11 @@ for i in range(0, int(duration_sec*env.SIM_FREQ), AGGR_PHY_STEPS):
                                                   target_pos=TARGET_POS[wp_counter])
 
             ### Select next waypoint ###
-            wp_counter = wp_counter + 1 if wp_counter < NUM_WAY_POINTS-1 else 0
+            if periodic:
+                wp_counter = wp_counter + 1 if wp_counter < NUM_WAY_POINTS-1 else 0
+            else:
+                wp_counter += 1 if wp_counter < NUM_WAY_POINTS-1 else 0
+                
         ### Printout data ###
         if i%env.SIM_FREQ == 0:
             env.render()
