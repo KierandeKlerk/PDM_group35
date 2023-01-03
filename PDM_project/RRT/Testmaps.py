@@ -61,6 +61,16 @@ def map(n):
         obstacles.append(np.array([170, 95, 200, 100], dtype = object))
         print("Loaded map 3 (hard)")
     
+    elif n == 4:   # Map using grids
+        start = np.array([5, 5])
+        goal = np.array([22, 50])
+        occupancy_grid = np.load("occupancy_grid.npy")
+        mapdim = (occupancy_grid.shape[0], occupancy_grid.shape[1])
+        dgoal = 10
+        dsearch = 15
+        dcheaper = 25
+        max_iter = 10000
+        return start, goal, mapdim, dgoal, dsearch, dcheaper, occupancy_grid, max_iter
     else:
         start = np.array([15, 15])
         goal = np.array([180, 80])
