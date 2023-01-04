@@ -3,21 +3,16 @@
 ######################################################################################
 
 import os
-from sys import platform
 import time
-import collections
 from datetime import datetime
 import xml.etree.ElementTree as etxml
 import pkg_resources
 from PIL import Image
-# import pkgutil
-# egl = pkgutil.get_loader('eglRenderer')
 import numpy as np
 import pybullet as p
 import pybullet_data
 import gym
 from gym import spaces
-from enum import Enum
 from gym_pybullet_drones.utils.enums import Physics, DroneModel
 
 # class DroneModel(Enum):

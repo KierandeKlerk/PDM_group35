@@ -6,4 +6,5 @@ Repository for the the Planning and Decision-Making project  (RO47005) of group 
 - Add emailadresses to pyproject.toml
 - Add installation instructions(README)
 
+when you get a ModuleNotFoundError for quadrotor_project, try export PYTHONPATH="${PYTHONPATH}:/path/to/project/" where the project in question is the folder containing the file generating the error.
 
