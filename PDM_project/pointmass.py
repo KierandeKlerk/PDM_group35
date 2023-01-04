@@ -15,14 +15,13 @@ from gym_pybullet_drones.utils.utils import sync
 drone = DroneModel("cf2p")
 physics = Physics("dyn")
 gui = True
-record = False # If set to true, will record an mp4; somehow 4 times faster than simulation time
+record = True # If set to true, will record an mp4; somehow 4 times faster than simulation time
 aggregate = True
 obstacles = True
 simulation_freq_hz = 240
 control_freq_hz = 48
 duration_sec = 12
-output_folder = 'results'
-periodic = False # Controls whether the drone starts over when reaching the last target waypoint
+periodic = True # Controls whether the drone starts over when reaching the last target waypoint
 
 ### Initial pose ###
 INIT_XYZ = np.array([0,0,0.8], dtype=float)
@@ -49,8 +48,7 @@ env = PointMassAviary(drone_model=drone,
                       aggregate_phy_steps=AGGR_PHY_STEPS,
                       gui=gui,
                       record=record,
-                      obstacles=obstacles,
-                      output_folder=output_folder)
+                      obstacles=obstacles)
 
 ### Initiate PID controller ###
 ctrl = pointmassPID(drone_model=drone)
