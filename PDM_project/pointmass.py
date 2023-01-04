@@ -15,9 +15,9 @@ from gym_pybullet_drones.utils.utils import sync
 drone = DroneModel("cf2p")
 physics = Physics("dyn")
 gui = True
-record = False
+record = False # If set to true, will record an mp4; somehow 4 times faster than simulation time
 aggregate = True
-obstacles = False
+obstacles = True
 simulation_freq_hz = 240
 control_freq_hz = 48
 duration_sec = 12

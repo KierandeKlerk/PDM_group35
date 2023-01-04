@@ -695,7 +695,7 @@ class PointMassAviary(gym.Env):
         These obstacles are loaded from standard URDF files included in Bullet.
 
         """
-        p.loadURDF("drone_parcours.urdf",
+        p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf'),
                    physicsClientId=self.CLIENT
                    )
     
