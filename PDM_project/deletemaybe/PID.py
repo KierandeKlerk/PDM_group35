@@ -20,7 +20,7 @@ droneid = p.loadURDF(pkg_resources.resource_filename('gym_pybullet_drones', 'ass
 m = 0.027
 
 for i in range (1,14000): # 10000
-    control_freq = 48 # from gym_pybullet_drones, but probably where the issue is!!!
+    control_freq = 1/240/(1/48) # from gym_pybullet_drones, but probably where the issue is!!!
     cur_pos, cur_quat = p.getBasePositionAndOrientation(droneid)
     cur_vel, cur_ang_vel = p.getBaseVelocity(droneid)
     control_timestep = i/control_freq
