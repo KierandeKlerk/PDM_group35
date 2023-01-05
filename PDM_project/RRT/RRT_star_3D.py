@@ -257,30 +257,33 @@ class RRTstar:
         ax.set_zlim3d(0, self.maph)
 
         #Showing map
-        plt.show()   
-    
-#Tests
-starttime = time.time()
-start = np.array([10, 50, 50])
-goal = np.array([190, 50, 50])
-mapdim = (150, 100, 100)
-dgoal = 10
-dsearch = 20
-dcheaper = 30
-max_iter = 20000
-obsmargin = 3
-obstacles = []
-obstacles.append(np.array([45, 0, 0, 50, 70, 100], dtype = object))
-obstacles.append(np.array([45, 70, 0, 50, 100, 70], dtype = object))
-obstacles.append(np.array([95, 0, 0, 100, 30, 70], dtype = object))
-obstacles.append(np.array([95, 30, 0, 100, 100, 100], dtype = object))
+        plt.show()
+
+        
+           
+if __name__ == "__main__":
+    #Tests
+    starttime = time.time()
+    start = np.array([10, 50, 50])
+    goal = np.array([190, 50, 50])
+    mapdim = (150, 100, 100)
+    dgoal = 10
+    dsearch = 20
+    dcheaper = 30
+    max_iter = 20000
+    obsmargin = 3
+    obstacles = []
+    obstacles.append(np.array([45, 0, 0, 50, 70, 100], dtype = object))
+    obstacles.append(np.array([45, 70, 0, 50, 100, 70], dtype = object))
+    obstacles.append(np.array([95, 0, 0, 100, 30, 70], dtype = object))
+    obstacles.append(np.array([95, 30, 0, 100, 100, 100], dtype = object))
 
 
-graph = RRTstar(start, goal, mapdim, dgoal, dsearch, dcheaper, obstacles, obsmargin, max_iter)
-#graph.addobst()
-#graph.makemap()
-while not graph.pathfound() and graph.iterations():
-    graph.expand()
-endtime = time.time()
-print("Time elapsed: ", endtime - starttime)
-graph.makemap()
+    graph = RRTstar(start, goal, mapdim, dgoal, dsearch, dcheaper, obstacles, obsmargin, max_iter)
+    #graph.addobst()
+    #graph.makemap()
+    while not graph.pathfound() and graph.iterations():
+        graph.expand()
+    endtime = time.time()
+    print("Time elapsed: ", endtime - starttime)
+    graph.makemap()

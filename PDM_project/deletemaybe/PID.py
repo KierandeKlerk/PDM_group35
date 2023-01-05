@@ -16,7 +16,7 @@ planeId = p.loadURDF("plane.urdf")
 obstacleId = p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf'))
 startPos = [0,0,0.8]
 startOrientation = p.getQuaternionFromEuler([0,0,0])
-droneid = p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/cf2x.urdf'), startPos, startOrientation)
+droneid = p.loadURDF(pkg_resources.resource_filename('gym_pybullet_drones', 'assets/cf2x.urdf'), startPos, startOrientation)
 m = 0.027
 
 for i in range (1,14000): # 10000
