@@ -16,7 +16,7 @@ in the X-Y plane, around point (0, -.3).
 
 """
 import sys
-sys.path.append('../gym-pybullet-drones')
+#sys.path.append('../gym-pybullet-drones')
 
 import os
 import time

@@ -20,7 +20,7 @@ aggregate = True
 obstacles = True
 simulation_freq_hz = 240
 control_freq_hz = 48
-duration_sec = 12
+duration_sec = 12           
 periodic = True # Controls whether the drone starts over when reaching the last target waypoint
 
 ### Initial pose ###
