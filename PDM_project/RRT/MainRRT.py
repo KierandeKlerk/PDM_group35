@@ -1,8 +1,10 @@
 from Testmaps import map
-from RRT_star import RRTstar
+#from RRT_star import RRTstar
 from tqdm import tqdm
 import time
 import numpy as np
+from quadrotor_project.planningAlgorithms.RRT import RRTstar
+import os
 
 # Choose test map:
 #   1: easy

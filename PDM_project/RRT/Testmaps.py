@@ -1,4 +1,5 @@
 import numpy as np
+import os
 def map(n):
     print("Loading map ", n, "...")
     if n == 1:
@@ -64,7 +65,7 @@ def map(n):
     elif n == 4:   # Map using grids
         start = np.array([5, 5])
         goal = np.array([22, 50])
-        occupancy_grid = np.load("occupancy_grid.npy")
+        occupancy_grid = np.load("./occupancygrid.npy")
         mapdim = (occupancy_grid.shape[0], occupancy_grid.shape[1])
         dgoal = 10
         dsearch = 15

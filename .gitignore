@@ -1,5 +1,5 @@
 # Ignore the directory that stores all the video recordings
-PDM_project/results/
+results/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
