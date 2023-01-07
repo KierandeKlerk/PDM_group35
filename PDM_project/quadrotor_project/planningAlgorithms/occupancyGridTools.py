@@ -28,3 +28,60 @@ def generateOccupancyGrid(pathTo3DFile, file_type = None, pitch=0.05):
         grid[round(x), round(y), round(z)] = 1
     
     return grid, offsets
+
+def checkneighbours2D(grid, x, y, xsize, ysize):
+    if x-1 > 0 and grid[x-1][y] == 1: return True
+    if y-1 > 0 and grid[x][y-1] == 1: return True
+    if x+1 < xsize and grid[x+1][y] == 1: return True
+    if y+1 < ysize and grid[x][y+1] == 1: return True
+    return False
+
+def checkneighbours3D(grid, x, y, z, xsize, ysize, zsize):
+    if x-1 > 0 and grid[x-1][y][z] == 1: return True
+    if y-1 > 0 and grid[x][y-1][z] == 1: return True
+    if x+1 < xsize and grid[x+1][y][z] == 1: return True
+    if y+1 < ysize and grid[x][y+1][z] == 1: return True
+    if z-1 > 0 and grid[x][y][z-1] == 1: return True
+    if z+1 < zsize and grid[x][y][z+1] == 1: return True
+    return False
+
+def marginise_grid2D(grid):
+    newgrid =np.zeros(grid.shape, dtype=np.int8)
+    xsize, ysize = grid.shape
+    count = 0
+    for x in range(xsize):
+        for y in range(ysize):
+            if checkneighbours2D(grid, x, y, xsize, ysize) or grid[x][y] == 1:
+                newgrid[x][y] = 1
+                count+=1
+    print(f"Found {count} points")
+    return newgrid
+
+def marginise_grid3D(grid):
+    newgrid =np.zeros(grid.shape, dtype=np.int8)
+    xsize, ysize, zsize = grid.shape
+    count = 0
+    for x in range(xsize):
+        for y in range(ysize):
+            for z in range(zsize):
+                if checkneighbours3D(grid, x, y, z, xsize, ysize, zsize) or grid[x][y][z] == 1:
+                    newgrid[x][y][z] = 1
+                    count+=1
+    print(f"Found {count} points")
+    return newgrid
+
+def marginWithDepth(grid, desiredMarginDepthinMeters=0.1, pitchInMeters=0.05):
+    #newGrid = np.zeros(grid.shape, dtype=np.int8)
+    iterations = int(desiredMarginDepthinMeters/pitchInMeters)
+    if grid.ndim == 2:
+        for i in range(iterations):
+            newGrid = marginise_grid2D(grid)
+        return newGrid
+    elif grid.ndim == 3:
+        for i in range(iterations):
+            newGrid = marginise_grid3D(grid)
+        return newGrid
+    else:
+        raise Exception("Grid dimension {} is not 2 or 3".format(grid.ndim))
+        
+
