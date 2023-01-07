@@ -43,8 +43,6 @@ from gym_pybullet_drones.control.SimplePIDControl import SimplePIDControl
 from gym_pybullet_drones.utils.Logger import Logger
 from gym_pybullet_drones.utils.utils import sync, str2bool
 
-# obstacleId = p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf'))
-
 DEFAULT_DRONES = DroneModel("cf2x")
 DEFAULT_NUM_DRONES = 1
 DEFAULT_PHYSICS = Physics("pyb")
@@ -58,13 +56,16 @@ DEFAULT_OBSTACLES = False
 
 DEFAULT_SIMULATION_FREQ_HZ = 240
 DEFAULT_CONTROL_FREQ_HZ = 48
+# DEFAULT_DURATION_SEC = 18
 DEFAULT_DURATION_SEC = 14
 DEFAULT_OUTPUT_FOLDER = 'results'
 DEFAULT_COLAB = False
 
 
 
+# WAYPOINTS_INPUT = np.array([[0,0,0.8], [0,0,0.8], [1.6, 0, 0.8], [1.6, 3.2, 0.8], [0.8, 3.2, 0.8], [0.8, 1, 0.8], [-0.1, 1, 0.8], [-0.1, 4.6, 0.8], [1.6, 4.6, 0.8], [1.6, 4.6, 0.8]])
 WAYPOINTS_INPUT = np.array([[0,0,0.8], [1.6, 0, 0.8], [1.6, 3.2, 0.8], [0.8, 3.2, 0.8], [0.8, 1, 0.8], [-0.1, 1, 0.8], [-0.1, 4.6, 0.8], [1.6, 4.6, 0.8]])
+obstacle_to_add = pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf')
 
 
 def run(
@@ -153,59 +154,30 @@ def run(
     action = {str(i): np.array([0,0,0,0]) for i in range(num_drones)}
     START = time.time()
 
-    def interpolate(start_pos, final_target_pos, step, total_steps=1500):
-        x_array = np.linspace(start_pos[0], final_target_pos[0], total_steps)
-        print(x_array)
-        y_array = np.linspace(start_pos[1], final_target_pos[1], total_steps)
-        z_array = np.linspace(start_pos[2], final_target_pos[2], total_steps)
-        current_target = np.array([x_array[step], y_array[step], z_array[step]])
-        return  current_target.tolist()
 
-    new_finer_waypoints = np.array([waypoints[0]])
+    new_finer_waypoints = np.array([waypoints[0]]) # add start point to trajectory
     num_time_per_waypoint = duration_sec/ (len(waypoints)-1) # get time it takes to complete one trajectory inside of the full one
-    print(f'time: {num_time_per_waypoint}')
-    for i in range(int(waypoints.shape[0]-1)):
-        waypoints_finer_traj = np.linspace(waypoints[i], waypoints[i+1], int(num_time_per_waypoint*env.SIM_FREQ))
-        new_finer_waypoints =  np.vstack((new_finer_waypoints, waypoints_finer_traj))
-        print(waypoints_finer_traj.shape)
-        # y_points = np.linspace(waypoints[i][1], waypoints[i+1][1], num_time_per_waypoint*env.SIM_FREQ).tolist()
-        # x_points = np.linspace(waypoints[i][2], waypoints[i+1][2], num_time_per_waypoint*env.SIM_FREQ).tolist()
-    new_finer_waypoints = np.vstack((new_finer_waypoints, waypoints[-1]))
-    print(new_finer_waypoints[0:5])
-    i_max = 0
-    for i in range(0, int(duration_sec*env.SIM_FREQ), AGGR_PHY_STEPS):
-        if i > i_max:
-            i_max = i
 
-    print(i_max)
+    ### Make the trajectory the size of the simulation, so that every i in simulation has a different point in the trajectory ###
+    for i in range(int(waypoints.shape[0]-1)): 
+        waypoints_finer_traj = np.linspace(waypoints[i], waypoints[i+1], int(num_time_per_waypoint*env.SIM_FREQ))
+        new_finer_waypoints =  np.vstack((new_finer_waypoints, waypoints_finer_traj[1:]))
+
     for i in range(0, int(duration_sec*env.SIM_FREQ), AGGR_PHY_STEPS):
         
-        #### Make it rain rubber ducks #############################
-        # if i/env.SIM_FREQ>5 and i%10==0 and i/env.SIM_FREQ<10: p.loadURDF("duck_vhacd.urdf", [0+random.gauss(0, 0.3),-0.5+random.gauss(0, 0.3),3], p.getQuaternionFromEuler([random.randint(0,360),random.randint(0,360),random.randint(0,360)]), physicsClientId=PYB_CLIENT)
-        p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf')) 
+        p.loadURDF(obstacle_to_add) # load obstacle course
+        
         #### Step the simulation ###################################
         obs, reward, done, info = env.step(action)
         
         #### Compute control at the desired frequency ##############
         if i%CTRL_EVERY_N_STEPS == 0:
-            x_points = np.linspace(0, 1.6, 48*2)
-            y_points = np.linspace(0, 3.2, 48*2)
             #### Compute control for the current way point #############
             for j in range(num_drones):
-                if i/env.SIM_FREQ < 2:
-                    target_now = np.array([x_points[int(i/env.SIM_FREQ*48)], 0, 0.8])
-                    print('test', i/env.SIM_FREQ)
-                # if i/env.SIM_FREQ >= 1 and i/env.SIM_FREQ < 2:
-                #     target_now = np.array([1.6, 0, 0.8])
-                if i/env.SIM_FREQ >= 2 and i/env.SIM_FREQ < 4:
-                    target_now = np.array([1.6, y_points[int((i/env.SIM_FREQ-2)*48)], 0.8])
-                if i/env.SIM_FREQ >= 4:
-                    target_now = [1.6, 3.2, 0.8]
                 target_now = new_finer_waypoints[i]
                 action[str(j)], _, _ = ctrl[j].computeControlFromState(control_timestep=CTRL_EVERY_N_STEPS*env.TIMESTEP,
                                                                        state=obs[str(j)]["state"],
                                                                        target_pos=target_now,
-                                                                       # target_pos=INIT_XYZS[j, :] + TARGET_POS[wp_counters[j], :],
                                                                        target_rpy=INIT_RPYS[j, :]
                                                                        )
 
