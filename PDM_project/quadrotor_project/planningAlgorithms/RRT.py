@@ -584,7 +584,7 @@ class GridRRTstar2D:
 
     #Function to check if a point is free of obstacles
     def isfree(self, x, y):
-        if self.grid[x][y] == 0:
+        if self.mgrid[x][y] == 0:
             return True
         else:
             return False
