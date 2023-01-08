@@ -10,14 +10,14 @@ import os
 ####EXAMPLE GRIDRRT2D
 #(uncomment)
 start = np.array([10, 10])
-goal = np.array([22, 40])
+goal = np.array([40, 100])
 dgoal = 5
 dsearch = 10
 dcheaper = 15
 max_iter = 4000
 
-grid3D = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
-grid2D = grid3D[:, :, 0]
+grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
+grid2D = grid[:, :, 0]
 m_grid2D = GT.marginise_grid2D(GT.marginise_grid2D(grid2D))
 graph = GridRRTstar2D(start, goal, dgoal, dsearch, dcheaper, grid2D, m_grid2D, max_iter)
 graph.makemap()
@@ -37,14 +37,14 @@ graph.makemap()
 ####EXAMPLE GRIDRRT3D
 #(uncomment)
 # start = np.array([10, 10, 20])
-# goal = np.array([22, 40, 0])
+# goal = np.array([40, 100, 0])
 # dgoal = 5
 # dsearch = 10
 # dcheaper = 15
-# max_iter = 4000
+# max_iter = 10000
 
 # grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
-# m_grid3D = GT.marginise_grid3D(GT.marginise_grid3D(grid))
+# m_grid3D = GT.marginise_grid3D(GT.marginise_grid3D(GT.marginise_grid3D(grid)))
 # graph = GridRRTstar3D(start, goal, dgoal, dsearch, dcheaper, grid, m_grid3D, max_iter)
 # graph.makemap()
 # starttime = time.time()
