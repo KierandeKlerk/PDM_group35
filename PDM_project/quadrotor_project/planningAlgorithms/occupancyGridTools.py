@@ -1,5 +1,6 @@
 import numpy as np
 import trimesh
+import matplotlib.pyplot as plt
 
 def generateOccupancyGrid(pathTo3DFile, file_type = None, pitch=0.05):
     '''
@@ -84,4 +85,54 @@ def marginWithDepth(grid, desiredMarginDepthinMeters=0.1, pitchInMeters=0.05):
     else:
         raise Exception("Grid dimension {} is not 2 or 3".format(grid.ndim))
         
+def plotgrid3D(grid):
+    occupied_points = np.argwhere(grid == 1)
+    x = occupied_points[:, 0]
+    y = occupied_points[:, 1]
+    z = occupied_points[:, 2]
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(x, y, z, c='b', alpha =0.1)
+    ax.set_aspect('equal')
+    plt.show()
 
+def plotgrid3Dwithmargin(grid, margin_grid):
+    occupied_points = np.argwhere(grid == 1)
+    x = occupied_points[:, 0]
+    y = occupied_points[:, 1]
+    z = occupied_points[:, 2]
+    margin_occupied_points = np.argwhere(margin_grid == 1)
+    margin_x = margin_occupied_points[:, 0]
+    margin_y = margin_occupied_points[:, 1]
+    margin_z = margin_occupied_points[:, 2]
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter(margin_x, margin_y, margin_z, c='r', alpha =0.1)
+    ax.scatter(x, y, z, c='b', alpha =0.1)
+    
+    ax.set_aspect('equal')
+    plt.show()
+
+def plotgrid2D(grid):
+    occupied_points = np.argwhere(grid == 1)
+    x = occupied_points[:, 0]
+    y = occupied_points[:, 1]
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot()
+    ax.scatter(x, y, c='b', alpha =0.5)
+    ax.set_aspect('equal')
+    plt.show()
+
+def plotgrid2Dwithmargin(grid, margin_grid):
+    occupied_points = np.argwhere(grid == 1)
+    x = occupied_points[:, 0]
+    y = occupied_points[:, 1]
+    margin_occupied_points = np.argwhere(margin_grid == 1)
+    margin_x = margin_occupied_points[:, 0]
+    margin_y = margin_occupied_points[:, 1]
+    fig = plt.figure(figsize=(12, 12))
+    ax = fig.add_subplot()
+    ax.scatter(margin_x, margin_y, c='r', alpha =0.5)
+    ax.scatter(x, y, c='b', alpha =0.5)
+    ax.set_aspect('equal')
+    plt.show()
