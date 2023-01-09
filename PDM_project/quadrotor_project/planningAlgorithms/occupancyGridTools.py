@@ -18,7 +18,7 @@ def generateOccupancyGrid(pathTo3DFile, file_type = None, pitch=0.05):
         - offsets: (3,) ndarray containing the offset of the object relative to the origin (in float)
     '''    
     mesh = trimesh.load_mesh(pathTo3DFile, file_type)
-    angelVoxel = mesh.voxelize(pitch)
+    angelVoxel = mesh.voxelized(pitch)
     points = np.array(angelVoxel.points)
     offsets = points.min(axis=0)
     points -= offsets
