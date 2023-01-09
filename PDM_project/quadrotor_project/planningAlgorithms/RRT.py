@@ -408,19 +408,27 @@ class GridRRTstar3D:
 
     #Function to expand the graph
     def expand(self):
+        #Take random sample as new node
         (x, y, z) = self.randomsample()
+        #Add node to nodelist
         self.addnode(x, y, z)
+        #Calculate distances to other nodes and nearest node
         n = len(self.x) - 1
         distances = self.distances(n)
         nnear = np.argmin(distances)
+        #Check if node is free and close to other nodes
         if self.edgefree(nnear, n) and (self.distance(n, nnear) <= self.d_search):
+            #If test is passed, add edge to nearest node
             self.addedge(nnear)
+            #Search for a cheaper node to connect to and reconnect if necessary
             cheapernode = self.cheapernodes(n, distances)
             if cheapernode != nnear:
                 self.removeedge(n)
                 self.addedge(cheapernode)
+            #Do a rewire check for optimality
             self.rewirecheck(n, distances)
 
+            #Check if the goal is found
             if self.goaldistance(n) <= self.d_goal:
                 if self.goalfound == False:
                     print("Goal found after", self.iters, "iterations! Searching for better path...")
@@ -463,6 +471,7 @@ class GridRRTstar3D:
             while nparent != 0:
                 self.path.insert(0, nparent)
                 nparent = self.parent[nparent]
+            self.path.insert(0, 0)
             for i in range(1, len(self.path)):
                 if not ((self.x[self.path[i]] == self.x[self.path[i-1]]) and (self.y[self.path[i]] == self.y[self.path[i-1]])): 
                     self.pathx.append(self.x[self.path[i]])
@@ -491,11 +500,6 @@ class GridRRTstar3D:
         ax.scatter(self.goal[0], self.goal[1], self.goal[2], s=80, facecolors='none', edgecolors='r')
 
         #Adding obstacles to the map
-        # occupied_points = np.argwhere(self.grid == 1)
-        # x = occupied_points[:, 0]
-        # y = occupied_points[:, 1]
-        # z = occupied_points[:, 2]
-        # ax.scatter(x, y, z, c='b', alpha =0.1)
         ax.scatter(self.obstacles[:, 0], self.obstacles[:, 1], self.obstacles[:, 2], c = 'b', alpha = 0.1)
 
         #Adding nodes to the map
@@ -719,13 +723,14 @@ class GridRRTstar2D:
     #Function to collect the nodes and coordinates used for the path
     def makepath(self):
         if self.goalfound: 
-            self.pathy = [self.start[0]]
-            self.pathx = [self.start[1]]
+            self.pathx = [self.start[0]]
+            self.pathy = [self.start[1]]
             self.path = [self.goalindex]
             nparent = self.parent[self.goalindex]
             while nparent != 0:
-                self.path.insert(1, nparent)
+                self.path.insert(0, nparent)
                 nparent = self.parent[nparent]
+            self.path.insert(0, 0)
             for i in range(1, len(self.path)):
                 if not ((self.x[self.path[i]] == self.x[self.path[i-1]]) and (self.y[self.path[i]] == self.y[self.path[i-1]])): 
                     self.pathx.append(self.x[self.path[i]])
