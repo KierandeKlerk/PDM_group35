@@ -18,7 +18,7 @@ def generateOccupancyGrid(pathTo3DFile, file_type = None, pitch=0.05):
         - offsets: (3,) ndarray containing the offset of the object relative to the origin (in float)
     '''    
     mesh = trimesh.load_mesh(pathTo3DFile, file_type)
-    angelVoxel = mesh.voxelize(pitch)
+    angelVoxel = mesh.voxelized(pitch)
     points = np.array(angelVoxel.points)
     offsets = points.min(axis=0)
     points -= offsets
@@ -74,13 +74,14 @@ def marginise_grid3D(grid):
 def marginWithDepth(grid, desiredMarginDepthinMeters=0.1, pitchInMeters=0.05):
     #newGrid = np.zeros(grid.shape, dtype=np.int8)
     iterations = int(desiredMarginDepthinMeters/pitchInMeters)
+    newGrid = grid.copy()
     if grid.ndim == 2:
         for i in range(iterations):
-            newGrid = marginise_grid2D(grid)
+            newGrid = marginise_grid2D(newGrid)
         return newGrid
     elif grid.ndim == 3:
         for i in range(iterations):
-            newGrid = marginise_grid3D(grid)
+            newGrid = marginise_grid3D(newGrid)
         return newGrid
     else:
         raise Exception("Grid dimension {} is not 2 or 3".format(grid.ndim))
