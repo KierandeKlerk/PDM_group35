@@ -263,11 +263,11 @@ def run(
                                                                        target_rpy=INIT_RPYS[j, :]
                                                                        )
             yaw, pitch, roll = p.getEulerFromQuaternion(obs[str(j)]["state"][3:7])
-            
-            p.resetDebugVisualizerCamera(0.001, 0, -roll*57.2958-30,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone POV
+            # p.resetDebugVisualizerCamera(0.001, 0, -roll*57.2958-30,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone POV
             # p.resetDebugVisualizerCamera(0.5, 0, -30,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone from behind
             # p.resetDebugVisualizerCamera(0.6, 0, -70,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone from above
             # p.resetDebugVisualizerCamera(0.01, -89.99,-89.99,[0,3,5]) # turn on to get view from above (static)
+            p.resetDebugVisualizerCamera(3, -45,-45,[0,1,1]) # turn on to get view from above (static)
 
             #### Go to the next way point and loop #####################
             # for j in range(num_drones): 
