@@ -563,29 +563,6 @@ class PointMassAviary(gym.Env):
                              )
     
     ################################################################################
-    #### Not necessary, as we only work with one quadcopter
-    # def _downwash(self):
-    #     """PyBullet implementation of a ground effect model.
-
-    #     Based on experiments conducted at the Dynamic Systems Lab by SiQi Zhou.
-
-    #     """
-    #     for i in range(self.NUM_DRONES):
-    #         delta_z = self.pos[i, 2] - self.pos[nth_drone, 2]
-    #         delta_xy = np.linalg.norm(np.array(self.pos[i, 0:2]) - np.array(self.pos[nth_drone, 0:2]))
-    #         if delta_z > 0 and delta_xy < 10: # Ignore drones more than 10 meters away
-    #             alpha = self.DW_COEFF_1 * (self.PROP_RADIUS/(4*delta_z))**2
-    #             beta = self.DW_COEFF_2 * delta_z + self.DW_COEFF_3
-    #             downwash = [0, 0, -alpha * np.exp(-.5*(delta_xy/beta)**2)]
-    #             p.applyExternalForce(self.DRONE_IDS[nth_drone],
-    #                                  4,
-    #                                  forceObj=downwash,
-    #                                  posObj=[0, 0, 0],
-    #                                  flags=p.LINK_FRAME,
-    #                                  physicsClientId=self.CLIENT
-    #                                  )
-
-    ################################################################################
 
     def _dynamics(self,
                   action
