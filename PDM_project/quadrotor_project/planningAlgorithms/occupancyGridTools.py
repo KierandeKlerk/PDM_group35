@@ -133,7 +133,7 @@ def marginWithDepth(grid, desiredMarginDepthinMeters=0.1, pitchInMeters=0.05):
         - newgrid: 2D/3D numpy array of the occupancy grid with expanded obstacle region
     '''
     #newGrid = np.zeros(grid.shape, dtype=np.int8)
-    iterations = int(desiredMarginDepthinMeters/pitchInMeters)
+    iterations = int(np.rint(desiredMarginDepthinMeters/pitchInMeters))
     newGrid = grid.copy()
     if grid.ndim == 2:
         for i in range(iterations):
