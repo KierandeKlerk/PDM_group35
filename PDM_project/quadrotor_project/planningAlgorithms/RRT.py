@@ -33,9 +33,13 @@ class GridRRTstar3D:
         self.max_iter = max_iter
         #Initializing goalfound parameter
         self.goalfound = False     
+        #Initializing smoothpaths
+        self.smoothpath = []
+        self.smoothpathfirst = []
+
 
     ####### Functions to create and remove edges and nodes #######  
-        
+    
     #Function to add a node to the list
     def addnode(self, x, y, z):
         self.x.append(x)
@@ -174,15 +178,16 @@ class GridRRTstar3D:
             if self.goaldistance(n) <= self.d_goal:
                 if self.goalfound == False:
                     print("Goal found after", self.iters, "iterations! Searching for better path...")
-                self.addnode(self.goal[0], self.goal[1], self.goal[2])
-                self.addedge(n)
-                distances = self.distances(n+1)
-                cheapernode = self.cheapernodes(n+1, distances)
-                self.goalindex = n+1
-                if cheapernode != n:
-                    self.removeedge(n+1)
-                    self.addedge(cheapernode)
-                self.goalfound = True
+                    self.addnode(self.goal[0], self.goal[1], self.goal[2])
+                    self.addedge(n)
+                    distances = self.distances(n+1)
+                    cheapernode = self.cheapernodes(n+1, distances)
+                    self.goalindex = n+1
+                    if cheapernode != n:
+                        self.removeedge(n+1)
+                        self.addedge(cheapernode)
+                    self.goalfound = True
+                    self.smoothpathfirst = self.getsmoothpath()
         else: 
             self.removenode(n)
     
@@ -192,7 +197,7 @@ class GridRRTstar3D:
         if self.iters < self.max_iter:
             return True
         else: 
-            self.makepath()
+            self.smoothpath = self.getsmoothpath()
             if self.goalfound:
                 print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
                 print("Cost to reach goal: ", self.reachcost(len(self.x)-1))
@@ -222,17 +227,17 @@ class GridRRTstar3D:
     
     #Function to get a smooth path to the goal
     def getsmoothpath(self):
-        self.smoothpath = []
+        self.makepath()
         if self.goalfound:
             u = np.linspace(0, 1, 400)
             tck, _ = interpolate.splprep([self.pathx, self.pathy, self.pathz])
-            self.smoothpath = interpolate.splev(u, tck)
+            return interpolate.splev(u, tck)
 
 
     ####### Visualization #######
 
     #Function to visualize the map and graph
-    def makemap(self, showpath = True, showrest = False, shownodes = False):   
+    def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
         
         fig = plt.figure()
         ax = fig.add_subplot(projection='3d')
@@ -264,8 +269,11 @@ class GridRRTstar3D:
                     ax.plot(x_values, y_values, z_values, color = '#000000')
 
         # #Adding smooth path to the map
-        self.getsmoothpath()
+        firstcoords = self.smoothpathfirst
         coords = self.smoothpath
+        if showfirstpath and len(firstcoords) != 0:
+            ax.scatter(firstcoords[0], firstcoords[1], firstcoords[2], color = '#00FFFF')
+
         if len(coords) != 0:
             ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
 
@@ -436,16 +444,17 @@ class GridRRTstar2D:
             if self.goaldistance(n) <= self.d_goal:
                 if self.goalfound == False:
                     print("Goal found after", self.iters, "iterations! Searching for better path...")
-                    self.makepath()
-                self.addnode(self.goal[0], self.goal[1])
-                self.addedge(n)
-                distances = self.distances(n+1)
-                cheapernode = self.cheapernodes(n+1, distances)
-                self.goalindex = n+1
-                if cheapernode != n:
-                    self.removeedge(n+1)
-                    self.addedge(cheapernode)
-                self.goalfound = True
+                    self.addnode(self.goal[0], self.goal[1])
+                    self.addedge(n)
+                    distances = self.distances(n+1)
+                    cheapernode = self.cheapernodes(n+1, distances)
+                    self.goalindex = n+1
+                    if cheapernode != n:
+                        self.removeedge(n+1)
+                        self.addedge(cheapernode)
+                    self.goalfound = True
+                    self.smoothpathfirst = self.getsmoothpath()
+                
         else: 
             self.removenode(n)
              
@@ -455,7 +464,7 @@ class GridRRTstar2D:
         if self.iters < self.max_iter:
             return True
         else:
-            self.makepath()
+            self.smoothpath = self.getsmoothpath()
             if self.goalfound:
                 print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
                 print("Cost to reach goal: ", self.reachcost(len(self.x)-1))
@@ -480,32 +489,21 @@ class GridRRTstar2D:
             for i in range(1, len(self.path)):
                 if not ((self.x[self.path[i]] == self.x[self.path[i-1]]) and (self.y[self.path[i]] == self.y[self.path[i-1]])): 
                     self.pathx.append(self.x[self.path[i]])
-                    self.pathy.append(self.y[self.path[i]]) 
-            self._storeSmoothPath()
-              
+                    self.pathy.append(self.y[self.path[i]])               
 
     #Function to get a smooth path to the goal
     def getsmoothpath(self):
+        self.makepath()
         if len(self.smoothpath) == 0:
             if self.goalfound:
                 u = np.linspace(0, 1, 200)
                 tck, _ = interpolate.splprep([self.pathx, self.pathy])
-                self.smoothpath = interpolate.splev(u, tck)
-
-    def _storeSmoothPath(self):
-        if self.goalfound:
-            u = np.linspace(0, 1, 200)
-            tck, _ = interpolate.splprep([self.pathx, self.pathy])
-            self.smoothpath = interpolate.splev(u, tck)
-        else: 
-            u = np.linspace(0, 1, 200)
-            tck, _ = interpolate.splprep([self.pathx, self.pathy])
-            self.smoothpathfirst = interpolate.splev(u, tck)
+                return interpolate.splev(u, tck)
 
     ####### Visualization #######
 
     #Function to visualize the map and graph
-    def makemap(self, showpath = True, showrest = False, shownodes = False, smoothcoords = None):   
+    def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
         fig, ax = plt.subplots(1, 1)
 
         #Adding start and goal points to the map
@@ -534,11 +532,11 @@ class GridRRTstar2D:
                     ax.plot(x_values, y_values, color = '#000000')
 
         #Adding smooth path to the map
-        if smoothcoords == None:
-            self.getsmoothpath()
-            coords = self.smoothpath
-        else:
-            coords = smoothcoords
+        firstcoords = self.smoothpathfirst
+        coords = self.smoothpath
+        if showfirstpath and len(firstcoords) != 0:
+            ax.scatter(firstcoords[0], firstcoords[1], color = '#00FFFF')
+
         if len(coords) != 0:
             ax.scatter(coords[0], coords[1], color = '#00FF00')
 
