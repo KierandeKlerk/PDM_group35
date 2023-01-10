@@ -23,7 +23,7 @@ def generateOccupancyGrid(pathTo3DFile, file_type = None, pitch=0.05):
     offsets = points.min(axis=0)
     points -= offsets
 
-    grid = np.zeros(shape=(len(np.unique(points[:,0])),len(np.unique(points[:,1])) , len(np.unique(points[:,2]))))
+    grid = np.zeros(shape=(np.max(points[:,0])/pitch, np.max(points[:,1])/pitch , np.max(points[:,2])/pitch))
     points *= (np.asarray(grid.shape)-1)/points.max(axis=0)
     for x,y,z in points:
         grid[round(x), round(y), round(z)] = 1
