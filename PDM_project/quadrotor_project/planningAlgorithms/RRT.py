@@ -536,7 +536,6 @@ class GridRRTstar2D:
         coords = self.smoothpath
         if showfirstpath and len(firstcoords) != 0:
             ax.scatter(firstcoords[0], firstcoords[1], color = '#00FFFF')
-
         if len(coords) != 0:
             ax.scatter(coords[0], coords[1], color = '#00FF00')
 

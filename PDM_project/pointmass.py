@@ -4,6 +4,7 @@ import pybullet_data
 import numpy as np
 import pkg_resources
 from tqdm import tqdm
+import os
 
 from quadrotor_project.envs.PointMassAviary import PointMassAviary
 from quadrotor_project.control.pointmassPID import pointmassPID
@@ -18,12 +19,12 @@ from gym_pybullet_drones.utils.utils import sync
 drone = DroneModel("cf2p")
 physics = Physics("dyn")
 gui = True
-record = True # If set to true, will record an mp4; somehow 4 times faster than simulation time
+record = False # If set to true, will record an mp4; somehow 4 times faster than simulation time
 aggregate = True
 obstacles = True
 simulation_freq_hz = 240
 control_freq_hz = 48
-duration_sec = 12           
+duration_sec = 20           
 # Obstacle and location settings
 obstacleFile = pkg_resources.resource_filename("quadrotor_project", "assets/drone_parcours.obj")
 gridPitch = 0.05
@@ -33,8 +34,10 @@ goal_xy = np.array([2, 5]) # in _meters
 dgoal = 5
 dsearch = 10
 dcheaper = 15
-max_iter = 8000
-track_time = 15
+max_iter = 6000
+track_time = 18
+load = True
+relativepath = "PDM/Project/PDM_group35/PDM_project/"
 
 ### Initial pose ###
 
@@ -51,41 +54,39 @@ AGGR_PHY_STEPS = int(simulation_freq_hz/control_freq_hz) if aggregate else 1
 # for i in range(NUM_WAY_POINTS):
 #     TARGET_POS[i, :] = [R*np.cos(i/NUM_WAY_POINTS*np.pi*2)-R, R*np.sin(i/NUM_WAY_POINTS*2*np.pi), 0.8]
 # wp_counter = 0
+if not load:
+    # Generating occupancy grid
+    occupancyGrid, offsets = generateOccupancyGrid(obstacleFile)
+    print(offsets)
+    # Applying RRT*
+    start = (start_xy-offsets[:2])/gridPitch
+    goal = (goal_xy-offsets[:2])/gridPitch
+    grid2D = occupancyGrid[:,:,0]
+    marginGrid2D = marginWithDepth(grid2D, desiredMarginDepthinMeters=0.2, pitchInMeters=gridPitch)
+    graph = GridRRTstar2D(start, goal, dgoal, dsearch, dcheaper, grid2D, marginGrid2D, max_iter)
+    starttime = time.time()
+    pbar = tqdm(total = max_iter)
+    graph.makemap()
+    while graph.iterations():
+        graph.expand()
+        pbar.update(1)
+    endtime = time.time()
+    pbar.close()
+    print("Time elapsed: ", endtime - starttime)
+    graph.makemap()
+    # Convert path to simulation scale and frame
+    path = np.array(graph.smoothpath).T
+    path = np.append(path,height/gridPitch*np.ones((len(path),1)), axis = 1)
+    path_refit = path*gridPitch+offsets
+    np.save(os.path.join(relativepath,"smoothpath.npy"), path_refit)
+else: 
+    path_refit = np.load(os.path.join(relativepath,"smoothpath.npy"))
 
-# Generating occupancy grid
-occupancyGrid, offsets = generateOccupancyGrid(obstacleFile)
-
-# Applying RRT*
-start = (start_xy-offsets[:2])/gridPitch
-goal = (goal_xy-offsets[:2])/gridPitch
-grid2D = occupancyGrid[:,:,0]
-marginGrid2D = marginWithDepth(grid2D, desiredMarginDepthinMeters=0.15, pitchInMeters=gridPitch)
-graph = GridRRTstar2D(start, goal, dgoal, dsearch, dcheaper, grid2D, marginGrid2D, max_iter)
-starttime = time.time()
-pbar = tqdm(total = max_iter)
-graph.makemap()
-while graph.iterations():
-    graph.expand()
-    pbar.update(1)
-endtime = time.time()
-pbar.close()
-print("Time elapsed: ", endtime - starttime)
-
-# Convert path to simulation scale and frame
-path = np.array(graph.smoothpath).T
-path = np.append(path,height/gridPitch*np.ones((len(path),1)), axis = 1)
-path_refit = path*gridPitch+offsets
-print(path_refit.shape)
-#for point in path_refit:
-    #print(path_refit)
 NUM_WAY_POINTS = int(track_time*control_freq_hz)
 TARGET_POS = np.zeros((NUM_WAY_POINTS,3))
 ind = np.round(np.linspace(0, len(path_refit) - 1, NUM_WAY_POINTS)).astype(int)
 TARGET_POS = path_refit[ind,:]
 wp_counter = 0
-TARGET_POS.round(2)
-for point in TARGET_POS:
-    print(point) 
 
 ### Initiate environment ###
 env = PointMassAviary(drone_model=drone,
