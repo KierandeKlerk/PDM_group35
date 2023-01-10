@@ -1,51 +1,27 @@
-from Testmaps import map
-#from RRT_star import RRTstar
 from tqdm import tqdm
 import time
 import numpy as np
-from quadrotor_project.planningAlgorithms.RRT import RRTstar2D, GridRRTstar2D, GridRRTstar3D
+from quadrotor_project.planningAlgorithms.RRT import GridRRTstar2D, GridRRTstar3D
 import quadrotor_project.planningAlgorithms.occupancyGridTools as GT
 import os
+import pkg_resources
+
+occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("quadrotor_project", "assets/Parcour.obj"))
 
 ####EXAMPLE GRIDRRT2D
 #(uncomment)
-start = np.array([10, 10])
-goal = np.array([40, 100])
-dgoal = 5
-dsearch = 10
-dcheaper = 15
-max_iter = 4000
-
-grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
-grid2D = grid[:, :, 0]
-m_grid2D = GT.marginise_grid2D(GT.marginise_grid2D(grid2D))
-graph = GridRRTstar2D(start, goal, dgoal, dsearch, dcheaper, grid2D, m_grid2D, max_iter)
-graph.makemap()
-starttime = time.time()
-pbar = tqdm(total = max_iter)
-
-while graph.iterations():
-    graph.expand()
-    pbar.update(1)
-
-endtime = time.time()
-pbar.close()
-print("Time elapsed: ", endtime - starttime)
-graph.makemap()
-
-
-####EXAMPLE GRIDRRT3D
-#(uncomment)
-# start = np.array([10, 10, 20])
-# goal = np.array([40, 100, 0])
+# start = np.array([10, 10])
+# goal = np.array([40, 100])
 # dgoal = 5
 # dsearch = 10
 # dcheaper = 15
-# max_iter = 10000
+# max_iter = 8000
 
-# grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
-# m_grid3D = GT.marginise_grid3D(GT.marginise_grid3D(GT.marginise_grid3D(grid)))
-# graph = GridRRTstar3D(start, goal, dgoal, dsearch, dcheaper, grid, m_grid3D, max_iter)
+# #grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
+# grid2D = grid[:, :, 0]
+# #m_grid2D = GT.marginise_grid2D(GT.marginise_grid2D(GT.marginise_grid2D(grid2D)))
+# m_grid2D = GT.marginWithDepth(grid2D, 0.2, 0.05)
+# graph = GridRRTstar2D(start, goal, dgoal, dsearch, dcheaper, grid2D, m_grid2D, max_iter)
 # graph.makemap()
 # starttime = time.time()
 # pbar = tqdm(total = max_iter)
@@ -59,6 +35,37 @@ graph.makemap()
 # print("Time elapsed: ", endtime - starttime)
 # graph.makemap()
 
+
+####EXAMPLE GRIDRRT3D
+#(uncomment)
+#Parcour2
+# start = np.array([10, 10, 10])
+# goal = np.array([80, 10, 10])
+
+#Parcour1
+start = np.array([10, 10, 10])
+goal = np.array([10, 10, 70])
+
+dgoal = 5
+dsearch = 10
+dcheaper = 15
+max_iter = 20000
+
+#grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
+grid = occupancy_grid
+m_grid3D = GT.marginWithDepth(grid, 0.15)
+graph = GridRRTstar3D(start, goal, dgoal, dsearch, dcheaper, grid, m_grid3D, max_iter)
+graph.makemap()
+starttime = time.time()
+pbar = tqdm(total = max_iter)
+while graph.iterations():
+    graph.expand()
+    pbar.update(1)
+endtime = time.time()
+pbar.close()
+print("Time elapsed: ", endtime - starttime)
+graph.makemap()
+print(graph.smoothpath)
 
 
 
