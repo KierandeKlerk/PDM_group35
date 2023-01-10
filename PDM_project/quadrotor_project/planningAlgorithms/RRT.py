@@ -508,12 +508,13 @@ class GridRRTstar3D:
                     ax.plot(x_values, y_values, z_values, color = '#000000')
 
         #Adding smooth paths to the map
-        firstcoords = self.smoothpathfirst
-        coords = self.smoothpath
-        if showfirstpath and len(firstcoords) != 0:
-            ax.scatter(firstcoords[0], firstcoords[1], firstcoords[2], color = '#00FFFF')
-        if len(coords) != 0:
-            ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
+        if self.goalfound:
+            firstcoords = self.smoothpathfirst
+            coords = self.smoothpath
+            if showfirstpath and len(firstcoords) != 0:
+                ax.scatter(firstcoords[0], firstcoords[1], firstcoords[2], color = '#00FFFF')
+            if len(coords) != 0:
+                ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
 
         #Setting map scale
         ax.set_aspect('equal')
