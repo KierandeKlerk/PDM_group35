@@ -57,7 +57,7 @@ DEFAULT_OBSTACLES = False
 DEFAULT_SIMULATION_FREQ_HZ = 240
 DEFAULT_CONTROL_FREQ_HZ = 48
 # DEFAULT_DURATION_SEC = 18
-DEFAULT_DURATION_SEC = 20
+DEFAULT_DURATION_SEC = 7
 DEFAULT_OUTPUT_FOLDER = 'results'
 DEFAULT_COLAB = False
 
@@ -161,7 +161,7 @@ waypoints = np.vstack((np.vstack((x.T,y.T)), z.T)).T
 print(waypoints[195:])
 print(waypoints.shape)
 WAYPOINTS_INPUT = waypoints
-# WAYPOINTS_INPUT = np.array([[0,0,0.8], [0,0,0.8], [1.6, 0, 0.8], [1.6, 3.2, 0.8], [0.8, 3.2, 0.8], [0.8, 1, 0.8], [-0.1, 1, 0.8], [-0.1, 4.6, 0.8], [1.6, 4.6, 0.8], [1.6, 4.6, 0.8]])
+WAYPOINTS_INPUT = np.array([[0,0,0.8], [0,0,0.8], [1.6, 0, 0.8], [1.6, 3.2, 0.8], [0.8, 3.2, 0.8], [0.8, 1, 0.8], [-0.1, 1, 0.8], [-0.1, 4.6, 0.8], [1.6, 4.6, 0.8], [1.6, 4.6, 0.8]])
 # WAYPOINTS_INPUT = np.array([[0,0,0.8], [1.6, 0, 0.8], [1.6, 3.2, 0.8], [0.8, 3.2, 0.8], [0.8, 1, 0.8], [-0.1, 1, 0.8], [-0.1, 4.6, 0.8], [1.6, 4.6, 0.8]])
 obstacle_to_add = pkg_resources.resource_filename('quadrotor_project', 'assets/drone_parcours.urdf')
 print(WAYPOINTS_INPUT.shape)
@@ -203,6 +203,7 @@ def run(
     # wp_counters = np.array([int((i*NUM_WP/6)%NUM_WP) for i in range(num_drones)])
 
     #### Create the environment 
+    
     env = CtrlAviary(drone_model=drone,
                         num_drones=num_drones,
                         initial_xyzs=INIT_XYZS,
@@ -261,6 +262,12 @@ def run(
                                                                        target_pos=target_now,
                                                                        target_rpy=INIT_RPYS[j, :]
                                                                        )
+            yaw, pitch, roll = p.getEulerFromQuaternion(obs[str(j)]["state"][3:7])
+            
+            p.resetDebugVisualizerCamera(0.001, 0, -roll*57.2958-30,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone POV
+            # p.resetDebugVisualizerCamera(0.5, 0, -30,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone from behind
+            # p.resetDebugVisualizerCamera(0.6, 0, -70,obs[str(j)]["state"][:3]- [0,0,0]) # turn on to track the drone from above
+            # p.resetDebugVisualizerCamera(0.01, -89.99,-89.99,[0,3,5]) # turn on to get view from above (static)
 
             #### Go to the next way point and loop #####################
             # for j in range(num_drones): 
