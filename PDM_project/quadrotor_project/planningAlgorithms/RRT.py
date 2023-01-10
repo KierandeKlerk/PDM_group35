@@ -486,7 +486,7 @@ class GridRRTstar3D:
         ax.scatter(self.goal[0], self.goal[1], self.goal[2], s=80, facecolors='none', edgecolors='r')
 
         #Adding obstacles to the map
-        ax.scatter(self.obstacles[:, 0], self.obstacles[:, 1], self.obstacles[:, 2], c = 'b', alpha = 0.1)
+        ax.scatter(self.obstacles[:, 0], self.obstacles[:, 1], self.obstacles[:, 2], c = 'b', alpha = 0.05)
 
         #Adding nodes to the map
         if shownodes:
