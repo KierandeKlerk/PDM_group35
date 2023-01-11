@@ -36,7 +36,8 @@ dsearch = 10
 dcheaper = 15
 max_iter = 6000
 track_time = 18
-load = True
+loadPath = True
+savePath = False
 relativepath = "PDM/Project/PDM_group35/PDM_project/"
 
 ### Initial pose ###
@@ -54,7 +55,7 @@ AGGR_PHY_STEPS = int(simulation_freq_hz/control_freq_hz) if aggregate else 1
 # for i in range(NUM_WAY_POINTS):
 #     TARGET_POS[i, :] = [R*np.cos(i/NUM_WAY_POINTS*np.pi*2)-R, R*np.sin(i/NUM_WAY_POINTS*2*np.pi), 0.8]
 # wp_counter = 0
-if not load:
+if not loadPath:
     # Generating occupancy grid
     occupancyGrid, offsets = generateOccupancyGrid(obstacleFile)
     print(offsets)
@@ -78,7 +79,8 @@ if not load:
     path = np.array(graph.smoothpath).T
     path = np.append(path,height/gridPitch*np.ones((len(path),1)), axis = 1)
     path_refit = path*gridPitch+offsets
-    np.save(os.path.join(relativepath,"smoothpath.npy"), path_refit)
+    if savePath:
+        np.save(os.path.join(relativepath,"smoothpath.npy"), path_refit)
 else: 
     path_refit = np.load(os.path.join(relativepath,"smoothpath.npy"))
 
