@@ -15,9 +15,6 @@ import gym
 from gym import spaces
 from gym_pybullet_drones.utils.enums import Physics, DroneModel
 
-# class DroneModel(Enum):
-#     CF2P = "cf2p_pointmass"
-#     CF2X = "cf2x_pointmass" 
 
 class PointMassAviary(gym.Env):
     """Base class for "drone aviary" Gym environments."""
