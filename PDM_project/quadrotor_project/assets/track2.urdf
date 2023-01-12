@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<robot name="Parcour2.urdf">
+<robot name="track2.urdf">
   <link concave="yes" name="baseLink">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -9,7 +9,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-				<mesh filename="Parcour2.obj" scale="1 1 1"/>
+				<mesh filename="track2.obj" scale="1 1 1"/>
       </geometry>
        <material name="white">
         <color rgba="1 1 1 1"/>
@@ -18,7 +18,7 @@
     <collision concave="yes">
       <origin rpy="0 0 0" xyz="0 0 0"/>
      <geometry>
-				<mesh filename="Parcour2.obj" scale="1 1 1"/>
+				<mesh filename="track2.obj" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
