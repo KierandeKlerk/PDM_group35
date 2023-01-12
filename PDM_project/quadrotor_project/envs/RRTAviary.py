@@ -46,7 +46,7 @@ class RRTAviary(CtrlAviary):
         self.dcheaper = 15
 
         ### Setting up track variables ###
-        self.obstacletoadd = pkg_resources.resource_filename('quadrotor_project', 'track{}.obj'.format(self.TRACK))
+        self.obstacletoadd = pkg_resources.resource_filename('quadrotor_project', 'assets/track{}.obj'.format(self.TRACK))
         if self.TRACK == 0:
             pybullet_data.getDataPath()
             self.obstacletoadd = "samurai.obj"
@@ -72,7 +72,7 @@ class RRTAviary(CtrlAviary):
             initial_rpys = np.array([0,0,0], dtype=np.float64)
             self.GOAL_XYZ = np.array([4, 0.5, 0.5], dtype = np.float64)
             self.max_iter = 130000
-            self.track_time = 50
+            self.track_time = 60
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  
@@ -115,7 +115,7 @@ class RRTAviary(CtrlAviary):
                 recording_path = os.path.join(self.OUTPUT_FOLDER, "recordings")
                 # os.makedirs(recording_path, exist_ok=True)
                 self.VIDEO_ID = p.startStateLogging(loggingType=p.STATE_LOGGING_VIDEO_MP4,
-                                                    fileName=os.path.join(recording_path, "output"+datetime.now().strftime("%d_%m_%Y_%H_%M_%S")+".mp4"),
+                                                    fileName=os.path.join(recording_path, "output_track{}_obstacles_{}_".format(self.TRACK, self.OBSTACLES)+datetime.now().strftime("%d_%m_%Y_%H_%M_%S")+".mp4"),
                                                     physicsClientId=self.CLIENT
                                                     )
             if self.RECORD and not self.GUI:
