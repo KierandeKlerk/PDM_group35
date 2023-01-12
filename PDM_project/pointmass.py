@@ -80,9 +80,9 @@ if not loadPath:
     path = np.append(path,height/gridPitch*np.ones((len(path),1)), axis = 1)
     path_refit = path*gridPitch+offsets
     if savePath:
-        np.save(os.path.join(relativepath,"smoothpath.npy"), path_refit)
+        np.save(os.path.join(relativepath,"track1.npy"), path_refit)
 else: 
-    path_refit = np.load(os.path.join(relativepath,"smoothpath.npy"))
+    path_refit = np.load(os.path.join(relativepath,"track1.npy"))
 
 NUM_WAY_POINTS = int(track_time*control_freq_hz)
 TARGET_POS = np.zeros((NUM_WAY_POINTS,3))
