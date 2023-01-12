@@ -48,7 +48,7 @@ Choose a track:
 '''
 track = 3
 
-loadPath = True
+loadPath = False
 savePath = True
 ########################################################
 

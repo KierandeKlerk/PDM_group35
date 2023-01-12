@@ -59,6 +59,7 @@ class RRTAviary(CtrlAviary):
             self.GOAL_XYZ = np.array([2, 5, 0.8], dtype = np.float64)
             self.max_iter = 8000
             self.track_time = 15
+            self.margindepth = 0.2
         
         elif self.TRACK == 2:
             initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
@@ -66,6 +67,7 @@ class RRTAviary(CtrlAviary):
             self.GOAL_XYZ = np.array([6, 2, 2], dtype = np.float64)
             self.max_iter = 30000
             self.track_time = 18
+            self.margindepth = 0.15
 
         elif self.TRACK == 3:
             initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
@@ -73,6 +75,7 @@ class RRTAviary(CtrlAviary):
             self.GOAL_XYZ = np.array([4, 0.5, 0.5], dtype = np.float64)
             self.max_iter = 130000
             self.track_time = 60
+            self.margindepth = 0.25
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  
@@ -181,7 +184,7 @@ class RRTAviary(CtrlAviary):
                 start = (self.INIT_XYZS)/self.grid_pitch
                 goal = (self.GOAL_XYZ)/self.grid_pitch
                 grid3D = occupancyGrid
-                marginGrid3D = GT.marginWithDepth(grid3D, desiredMarginDepthinMeters=0.15, pitchInMeters=self.grid_pitch)
+                marginGrid3D = GT.marginWithDepth(grid3D, desiredMarginDepthinMeters=self.margindepth, pitchInMeters=self.grid_pitch)
                 graph = GridRRTstar3D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid3D, marginGrid3D, self.max_iter)
                 starttime = time.time()
                 pbar = tqdm(total = self.max_iter)
