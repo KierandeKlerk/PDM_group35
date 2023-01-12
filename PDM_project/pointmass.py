@@ -44,17 +44,8 @@ relativepath = "PDM/Project/PDM_group35/PDM_project/"
 
 AGGR_PHY_STEPS = int(simulation_freq_hz/control_freq_hz) if aggregate else 1
 
-### Target position calculation (to be replaced with data from RRT) ###
-#Sample trajectory
-# R = 0.6
+### Target position calculation through RRT* ###
 
-# TRACK_TIME = 4
-# NUM_WAY_POINTS = TRACK_TIME*control_freq_hz
-# print("Number of waypoints {}".format(NUM_WAY_POINTS))
-# TARGET_POS = np.zeros((NUM_WAY_POINTS,3))
-# for i in range(NUM_WAY_POINTS):
-#     TARGET_POS[i, :] = [R*np.cos(i/NUM_WAY_POINTS*np.pi*2)-R, R*np.sin(i/NUM_WAY_POINTS*2*np.pi), 0.8]
-# wp_counter = 0
 if not loadPath:
     # Generating occupancy grid
     occupancyGrid, offsets = generateOccupancyGrid(obstacleFile)

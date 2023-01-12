@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<robot name="Hole_obstacle_course.urdf">
+<robot name="track1.urdf">
   <link concave="yes" name="baseLink">
     <inertial>
       <origin rpy="0 0 0" xyz="0 0 0"/>
@@ -9,7 +9,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 0"/>
       <geometry>
-				<mesh filename="Hole_obstacle_course.obj" scale="1 1 1"/>
+				<mesh filename="track1.obj" scale="1 1 1"/>
       </geometry>
        <material name="white">
         <color rgba="1 1 1 1"/>
@@ -18,7 +18,7 @@
     <collision concave="yes">
       <origin rpy="0 0 0" xyz="0 0 0"/>
      <geometry>
-				<mesh filename="Hole_obstacle_course.obj" scale="1 1 1"/>
+				<mesh filename="track1.obj" scale="1 1 1"/>
       </geometry>
     </collision>
   </link>
