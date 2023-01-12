@@ -26,7 +26,7 @@ simulation_freq_hz = 240
 control_freq_hz = 48
 duration_sec = 20           
 # Obstacle and location settings
-obstacleFile = pkg_resources.resource_filename("quadrotor_project", "assets/drone_parcours.obj")
+obstacleFile = pkg_resources.resource_filename("quadrotor_project", "assets/track1.obj")
 gridPitch = 0.05
 height = 0.8 # in meters 
 start_xy = np.array([0.5, 0.5]) # in meters
@@ -80,9 +80,9 @@ if not loadPath:
     path = np.append(path,height/gridPitch*np.ones((len(path),1)), axis = 1)
     path_refit = path*gridPitch+offsets
     if savePath:
-        np.save(os.path.join(relativepath,"track1.npy"), path_refit)
+        np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track1.npy"), path_refit)
 else: 
-    path_refit = np.load(os.path.join(relativepath,"track1.npy"))
+    path_refit = np.load(pkg_resources.resource_filename('quadrotor_project',"assets/track1.npy"))
 
 NUM_WAY_POINTS = int(track_time*control_freq_hz)
 TARGET_POS = np.zeros((NUM_WAY_POINTS,3))
