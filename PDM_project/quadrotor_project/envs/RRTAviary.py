@@ -25,6 +25,7 @@ class RRTAviary(CtrlAviary):
                  record=False,
                  obstacles = True,
                  track = None,
+                 tracking_dimension = 3,
                  load_path = True,
                  save_path = True,
                  user_debug_gui=True,
@@ -64,6 +65,8 @@ class RRTAviary(CtrlAviary):
             self.GOAL_XYZ = np.array([4, 0.5, 0.5], dtype = np.float64)
             self.max_iter = 130000
             self.track_time = 50
+        else: 
+            raise Exception("Track {} is not a valid track".format(self.TRACK))
             
 
                  
@@ -113,6 +116,21 @@ class RRTAviary(CtrlAviary):
                 self.IMG_PATH = os.path.join(self.OUTPUT_FOLDER, "recording_" + datetime.now().strftime("%d.%m.%Y_%H.%M.%S"), '')
                 os.makedirs(os.path.dirname(self.IMG_PATH), exist_ok=True)
         
+    ###############################################################################
+
+    def getPath(self):
+        ''' Computes the path generated from an RRT* graph
+
+            Returns
+            -------
+            ndarray[ndarray, ndarray, ndarray]
+                arrays of equal length containg x, y and z coordinates respectively
+        
+        '''
+        if self.TRACK == 0:
+            exit() # Dummy in order to avoid errors
+
+
     ###############################################################################
 
     def _computeInfo(self):
