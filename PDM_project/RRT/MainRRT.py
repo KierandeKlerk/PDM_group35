@@ -1,7 +1,7 @@
 from tqdm import tqdm
 import time
 import numpy as np
-from quadrotor_project.planningAlgorithms.RRT import GridRRTstar2D, GridRRTstar3D
+from quadrotor_project.planningAlgorithms.RRT import GridRRT3D, GridRRTstar3D
 import quadrotor_project.planningAlgorithms.occupancyGridTools as GT
 import os
 import pkg_resources
@@ -65,7 +65,7 @@ endtime = time.time()
 pbar.close()
 print("Time elapsed: ", endtime - starttime)
 graph.makemap()
-print(graph.smoothpath)
+
 
 
 
