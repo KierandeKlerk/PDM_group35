@@ -58,7 +58,7 @@ class RRTAviary(CtrlAviary):
             initial_rpys = np.array([0,0,0], dtype=np.float64)
             self.GOAL_XYZ = np.array([2, 5, 0.8], dtype = np.float64)
             self.max_iter = 8000
-            self.track_time = 15
+            self.track_time = 13
             self.margindepth = 0.2
         
         elif self.TRACK == 2:
@@ -150,8 +150,8 @@ class RRTAviary(CtrlAviary):
                 occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
                 # Applying RRT*
-                start = (self.INIT_XYZS[:2])/self.grid_pitch
-                goal = (self.GOAL_XYZ[:2])/self.grid_pitch
+                start = (self.INIT_XYZS.reshape(3)[:2])/self.grid_pitch
+                goal = (self.GOAL_XYZ.reshape(3)[:2])/self.grid_pitch
                 grid2D = occupancyGrid[:,:,0]
                 marginGrid2D = GT.marginWithDepth(grid2D, desiredMarginDepthinMeters=0.2, pitchInMeters=self.grid_pitch)
                 graph = GridRRTstar2D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid2D, marginGrid2D, self.max_iter)
@@ -168,9 +168,9 @@ class RRTAviary(CtrlAviary):
                 graph.makemap()
                 # Convert path to simulation scale and frame
                 path = np.array(graph.smoothpath).T
-                path = np.append(path,self.INIT_XYZS[2]/self.grid_pitch*np.ones((len(path),1)), axis = 1)
+                path = np.append(path,self.INIT_XYZS.reshape(3)[2]/self.grid_pitch*np.ones((len(path),1)), axis = 1)
                 path_refit = path*self.grid_pitch
-                if self.SAVE_PATHPath:
+                if self.SAVE_PATH:
                     np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track1.npy"), path_refit)
             else: 
                 path_refit = np.load(pkg_resources.resource_filename('quadrotor_project', 'assets/track1.npy'))
@@ -181,8 +181,8 @@ class RRTAviary(CtrlAviary):
                 occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
                 # Applying RRT*
-                start = (self.INIT_XYZS)/self.grid_pitch
-                goal = (self.GOAL_XYZ)/self.grid_pitch
+                start = (self.INIT_XYZS.reshape(3))/self.grid_pitch
+                goal = (self.GOAL_XYZ.reshape(3))/self.grid_pitch
                 grid3D = occupancyGrid
                 marginGrid3D = GT.marginWithDepth(grid3D, desiredMarginDepthinMeters=self.margindepth, pitchInMeters=self.grid_pitch)
                 graph = GridRRTstar3D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid3D, marginGrid3D, self.max_iter)
