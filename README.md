@@ -1,5 +1,16 @@
 # PDM_group35
-Repository for the the Planning and Decision-Making project  (RO47005) of group 35
+This is the repository for the Planning & Decision-Making (RO47005) final project of group 35. </br>
+It contains gym-pybullet-drones as a submodule for the ease of installation of the project.</br>
+
+
+### Authors:
+ - Fabian Gebben 
+ - Thijs Domburg
+ - Amin Mimoun Bouras
+ - Kieran de Klerk
+
+
+
 
 
 # TO DO
