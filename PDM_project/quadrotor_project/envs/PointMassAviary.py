@@ -626,39 +626,6 @@ class PointMassAviary(gym.Env):
     
     ################################################################################
 
-    def _showDroneLocalAxes(self):
-        """Draws the local frame of the n-th drone in PyBullet's GUI.
-
-        """
-        if self.GUI:
-            AXIS_LENGTH = 2*self.L
-            self.X_AX = p.addUserDebugLine(lineFromXYZ=[0, 0, 0],
-                                                      lineToXYZ=[AXIS_LENGTH, 0, 0],
-                                                      lineColorRGB=[1, 0, 0],
-                                                      parentObjectUniqueId=self.DRONE_ID,
-                                                      parentLinkIndex=-1,
-                                                      replaceItemUniqueId=int(self.X_AX),
-                                                      physicsClientId=self.CLIENT
-                                                      )
-            self.Y_AX = p.addUserDebugLine(lineFromXYZ=[0, 0, 0],
-                                                      lineToXYZ=[0, AXIS_LENGTH, 0],
-                                                      lineColorRGB=[0, 1, 0],
-                                                      parentObjectUniqueId=self.DRONE_ID,
-                                                      parentLinkIndex=-1,
-                                                      replaceItemUniqueId=int(self.Y_AX),
-                                                      physicsClientId=self.CLIENT
-                                                      )
-            self.Z_AX = p.addUserDebugLine(lineFromXYZ=[0, 0, 0],
-                                                      lineToXYZ=[0, 0, AXIS_LENGTH],
-                                                      lineColorRGB=[0, 0, 1],
-                                                      parentObjectUniqueId=self.DRONE_ID,
-                                                      parentLinkIndex=-1,
-                                                      replaceItemUniqueId=int(self.Z_AX),
-                                                      physicsClientId=self.CLIENT
-                                                      )
-    
-    ################################################################################
-
     def _addObstacles(self):
         """Add obstacles to the environment.
 
@@ -763,7 +730,7 @@ class PointMassAviary(gym.Env):
             commanded to the 4 motors of each drone.
 
         """
-        clipped_action = np.clip(action, [0,-np.pi/4, -np.pi/4], [self.MAX_THRUST, np.pi/4, np.pi/4])
+        clipped_action = np.clip(action, [0,-np.pi/6, -np.pi/6], [self.MAX_THRUST, np.pi/6, np.pi/6])
         return clipped_action
 
     ################################################################################

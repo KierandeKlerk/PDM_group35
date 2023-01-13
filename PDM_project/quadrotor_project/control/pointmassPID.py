@@ -23,9 +23,9 @@ class pointmassPID (object):
         self.MAX_ROLL_PITCH = np.pi/4
 
 
-        self.P_COEFF_T = np.array([0.7,0.4,0.4])
-        self.I_COEFF_T = np.array([0,0.1,0.1])
-        self.D_COEFF_T = np.array([2,0.1,0.1])
+        self.P_COEFF_T = np.array([1.0, 1.0, 1.0])
+        self.I_COEFF_T = np.array([1.0, 1.0, 1.0])
+        self.D_COEFF_T = np.array([1.0, 1.0, 1.0])
 
         self.reset()
 

@@ -108,6 +108,7 @@ for i in range(0, int(duration_sec*env.SIM_FREQ), AGGR_PHY_STEPS):
         
         ### Step the simulation ###
         state, done, _ = env.step(action)
+        p.resetDebugVisualizerCamera(0.25, 0, -30,state[:3]- [0,0,0]) # turn on to track the drone from behind
 
         ### Compute control at the desired  frequency
         if i%CTRL_EVERY_N_STEPS == 0:
