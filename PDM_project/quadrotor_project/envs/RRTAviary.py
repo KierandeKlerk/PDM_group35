@@ -147,7 +147,7 @@ class RRTAviary(CtrlAviary):
         elif self.TRACK == 1:
             if not self.LOAD_PATH:
                 # Generating occupancy grid
-                occupancyGrid, _ = GT.generateOccupancyGrid(self.OBSTACLES)
+                occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
                 # Applying RRT*
                 start = (self.INIT_XYZS[:2])/self.grid_pitch
@@ -178,7 +178,7 @@ class RRTAviary(CtrlAviary):
         else:
             if not self.LOAD_PATH:
                 # Generating occupancy grid
-                occupancyGrid, _ = GT.generateOccupancyGrid(self.OBSTACLES)
+                occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
                 # Applying RRT*
                 start = (self.INIT_XYZS)/self.grid_pitch
