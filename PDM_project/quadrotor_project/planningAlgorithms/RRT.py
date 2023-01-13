@@ -885,7 +885,7 @@ class GridRRTstar2D:
 
                 #Check if this is the first goal encounter
                 if self.goalfound == False:
-                    print("Goal found after", self.iters, "iterations! Searching for better path...")
+                    print("Goal found after", self.iters, "iterations and ", n+1 , "! Searching for better path...")
 
                     #Make a new node, located on the endpoint, and connect with the node n that was close to the goal
                     self.addnode(self.goal[0], self.goal[1])
