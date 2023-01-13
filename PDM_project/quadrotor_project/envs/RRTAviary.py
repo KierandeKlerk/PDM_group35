@@ -66,7 +66,7 @@ class RRTAviary(CtrlAviary):
             initial_rpys = np.array([0,0,0], dtype=np.float64)
             self.GOAL_XYZ = np.array([6, 2, 2], dtype = np.float64)
             self.max_iter = 30000
-            self.track_time = 18
+            self.track_time = 10
             self.margindepth = 0.15
 
         elif self.TRACK == 3:
@@ -74,7 +74,7 @@ class RRTAviary(CtrlAviary):
             initial_rpys = np.array([0,0,0], dtype=np.float64)
             self.GOAL_XYZ = np.array([4, 0.5, 0.5], dtype = np.float64)
             self.max_iter = 130000
-            self.track_time = 60
+            self.track_time = 65
             self.margindepth = 0.25
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
