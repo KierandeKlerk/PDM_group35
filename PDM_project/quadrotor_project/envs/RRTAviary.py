@@ -15,7 +15,7 @@ import quadrotor_project.planningAlgorithms.occupancyGridTools as GT
 from quadrotor_project.planningAlgorithms.RRT import GridRRTstar2D, GridRRTstar3D
 
 class RRTAviary(CtrlAviary):
-    '''Drone environment derived from gym_pybullet's CtrlAviary with specific purpose of being used with our RRTstar implementation'''
+    '''Drone environment derived from gym_pybullet's CtrlAviary with specific purpose of being used with our RRT* implementation'''
 
     def __init__(self,
                  drone_model: DroneModel=DroneModel.CF2X,
@@ -39,16 +39,28 @@ class RRTAviary(CtrlAviary):
         self.LOAD_PATH = load_path
         self.SAVE_PATH = save_path
         
-        # RRT* settings
-        self.grid_pitch = 0.05
-        self.dgoal = 5
-        self.dsearch = 10
-        self.dcheaper = 15
+        # Initialize RRT* settings
+        self.grid_pitch = 0.05 # The size of the individual grid cells of the occupancy grid
+        self.dgoal = 5 # Radius around the goal, if a node is generated within this radius and can be connected to the initial node through a number of edges, the goal is considered to be found
+        self.dsearch = 10 # The radius within which the RRT* algorithms searches for the closest node after a new node has been generated
+        self.dcheaper = 15 # The radius within which the algorithm searches for a node to reconnect to with a lower cost to the initial node
 
         ### Setting up track variables ###
-        self.obstacletoadd = pkg_resources.resource_filename('quadrotor_project', 'assets/track{}.obj'.format(self.TRACK))
+        if self.TRACK !=0:
+            # If track 0 is not selected, the obstacle to load is retrieved by self.getPath and self._addObstacles
+            self.obstacletoadd = pkg_resources.resource_filename('quadrotor_project', 'assets/track{}.obj'.format(self.TRACK)) 
+
+        '''Set positional, occupancygrid and RRT* variables for the given track.
+        - initial_xyzs : the initial position of the quadrotor
+        - initial_rpys : the initial attitude of the quadrotor
+        - GOAL_XYZ : the position of the goal in 3D space
+        - max_iter : the max amount of iterations the RRT* algorithm is allowed to run
+        - track_time : the time the quadrotor has to follow the track's computed path
+        - margindepth : the depth (in meters) of margins around obstacles that is to be generated in the occupancy grid
+        '''
         if self.TRACK == 0:
-            pybullet_data.getDataPath()
+            '''Track 0 is a demo track and does not use motionplanning, therefore it does not need the latter 4 settings'''
+            pybullet_data.getDataPath() # Make sure that pybullet knows where to search for the urdf and associated obj file
             self.obstacletoadd = "samurai.obj"
             initial_xyzs = np.array([0,0,0.5], dtype = np.float64)
             initial_rpys = np.array([0,0,0], dtype=np.float64)
@@ -76,6 +88,13 @@ class RRTAviary(CtrlAviary):
             self.max_iter = 130000
             self.track_time = 65
             self.margindepth = 0.25
+        elif self.TRACK == 4:
+            initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
+            initial_rpys = np.array([0,0,0], dtype=np.float64)
+            self.GOAL_XYZ = np.array([4.5, 4.5, 0.5], dtype = np.float64)
+            self.max_iter = 20000
+            self.track_time = 5
+            self.margindepth = 0.2
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  
