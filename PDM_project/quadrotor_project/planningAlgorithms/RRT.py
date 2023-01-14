@@ -81,6 +81,8 @@ class GridRRTstar3D:
         #Initializing goalfound parameter
         self.goalfound = False     
 
+        self.pathcosts = []
+        self.pathiterations = []
 
     ####### Functions to create and remove edges and nodes #######  
     
@@ -403,17 +405,18 @@ class GridRRTstar3D:
         '''
         Function that monitors the iterations and gives some information when the maximum is reached
         ''' 
-
+        self.savepathlength()
         self.iters += 1
         if self.iters <= self.max_iter:
             return True
         else: 
-            self.smoothpath = self.getsmoothpath()
             if self.goalfound:
+                self.smoothpath = self.getsmoothpath()
+                self.getsimplegraph()
                 print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
                 print("Cost to reach goal: ", self.reachcost(self.goalindex))
             else:
-                print("No goal found after ", self.iters, " iterations :( \nMade", len(self.x), "nodes.")
+                print("No goal found after ", self.iters-1, " iterations :( \nMade", len(self.x), "nodes.")
             return False
         
 
@@ -464,10 +467,38 @@ class GridRRTstar3D:
             smoothpath = interpolate.splev(u, tck)
             return smoothpath
 
+    ####### Functions for visualizing information #######
+    
+    def getsimplegraph(self):
+        simplegraph1 = []
+        simplegraph = []
+        for i in self.path:
+            if i != 0:
+                childs = [idx for idx, element in enumerate(self.parent) if element == i]
+                for child in childs:
+                    simplegraph1.append(child)
+        for i in simplegraph1:
+            if i != 0:
+                childs = [idx for idx, element in enumerate(self.parent) if element == i]
+                for child in childs:
+                    simplegraph.append(child)
+        return simplegraph
+    
+    def savepathlength(self):
+        if self.goalfound:
+            self.pathcosts.append(self.reachcost(self.goalindex))
+            self.pathiterations.append(self.iters)
+
+    def plotpathlengths(self):
+        fig1, ax1 = plt.subplots(1, 1)
+        ax1.plot(self.pathiterations, self.pathcosts, c = 'b')
+        ax1.set_xlabel("Iterations")
+        ax1.set_ylabel("Path cost")
+        plt.show()
 
     ####### Visualization #######
 
-    def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
+    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
@@ -491,26 +522,32 @@ class GridRRTstar3D:
         ax.scatter(self.obstacles[:, 0], self.obstacles[:, 1], self.obstacles[:, 2], c = 'b', alpha = 0.05)
 
         #Adding nodes to the map
+        simplegraph = self.getsimplegraph()
         if shownodes:
             for i in range(1, len(self.x)):
                 if (i in self.path) and showpath:
                     ax.scatter(self.x[i], self.y[i], self.z[i], color = '#FF0000')
+                elif (i in simplegraph) and showsimplegraph and showpath:
+                    print("showchild")
+                    ax.scatter(self.x[i], self.y[i], self.z[i], color = '#000000')
                 elif showrest: 
                     ax.scatter(self.x[i], self.y[i], self.z[i], color = '#000000')
 
         #Adding edges to the map
-        if showrest or showpath:
+        if showrest or showpath or showsimplegraph:
             for i in range(1, len(self.parent)):
                 x_values = [self.x[i], self.x[self.parent[i]]]
                 y_values = [self.y[i], self.y[self.parent[i]]]
                 z_values = [self.z[i], self.z[self.parent[i]]]
                 if (i in self.path) and showpath:
                     ax.plot(x_values, y_values, z_values, color = '#FF0000')
+                elif (i in simplegraph) and showsimplegraph and showpath:
+                    ax.plot(x_values, y_values, z_values, color = '#808080')
                 elif showrest:
                     ax.plot(x_values, y_values, z_values, color = '#000000')
 
         #Adding smooth paths to the map
-        if self.goalfound:
+        if self.goalfound and showspline:
             firstcoords = self.smoothpathfirst
             coords = self.smoothpath
             if showfirstpath and len(firstcoords) != 0:
@@ -518,12 +555,16 @@ class GridRRTstar3D:
             if len(coords) != 0:
                 ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
 
-        #Setting map scale
+        #Setting map scale and axis labels
         ax.set_aspect('equal')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
 
         #Showing map
         plt.show()
 
+    
 ######################################################################################
 
 class GridRRTstar2D:
@@ -967,7 +1008,7 @@ class GridRRTstar2D:
                 smoothpath = interpolate.splev(u, tck)
                 return smoothpath
 
-
+    
     ####### Visualization #######
 
     def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
@@ -1352,7 +1393,6 @@ class GridRRT3D:
         '''       
 
         if (self.iters > self.max_iter) or self.goalfound:
-            print("Yeet")
             self.smoothpath = self.getsmoothpath()
             if self.goalfound:
                 print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
@@ -1364,7 +1404,6 @@ class GridRRT3D:
             self.iters += 1
             return True
         
-
     ####### Functions that compute the final path from start to finish #######
 
     def makepath(self):
@@ -1411,9 +1450,27 @@ class GridRRT3D:
             return smoothpath
 
 
+    ####### Functions for visualizing information #######
+
+    def getsimplegraph(self):
+        simplegraph1 = []
+        simplegraph = []
+        for i in self.path:
+            if i != 0:
+                childs = [idx for idx, element in enumerate(self.parent) if element == i]
+                for child in childs:
+                    simplegraph1.append(child)
+        for i in simplegraph1:
+            if i != 0:
+                childs = [idx for idx, element in enumerate(self.parent) if element == i]
+                for child in childs:
+                    simplegraph.append(child)
+        return simplegraph
+
+
     ####### Visualization #######
 
-    def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
+    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
@@ -1437,26 +1494,33 @@ class GridRRT3D:
         ax.scatter(self.obstacles[:, 0], self.obstacles[:, 1], self.obstacles[:, 2], c = 'b', alpha = 0.05)
 
         #Adding nodes to the map
+        simplegraph = self.getsimplegraph()
         if shownodes:
             for i in range(1, len(self.x)):
                 if (i in self.path) and showpath:
                     ax.scatter(self.x[i], self.y[i], self.z[i], color = '#FF0000')
+                elif (i in simplegraph) and showsimplegraph and showpath:
+                    print("showchild")
+                    ax.scatter(self.x[i], self.y[i], self.z[i], color = '#000000')
                 elif showrest: 
                     ax.scatter(self.x[i], self.y[i], self.z[i], color = '#000000')
 
+
         #Adding edges to the map
-        if showrest or showpath:
+        if showrest or showpath or showsimplegraph:
             for i in range(1, len(self.parent)):
                 x_values = [self.x[i], self.x[self.parent[i]]]
                 y_values = [self.y[i], self.y[self.parent[i]]]
                 z_values = [self.z[i], self.z[self.parent[i]]]
                 if (i in self.path) and showpath:
                     ax.plot(x_values, y_values, z_values, color = '#FF0000')
+                elif (i in simplegraph) and showsimplegraph and showpath:
+                    ax.plot(x_values, y_values, z_values, color = '#808080')
                 elif showrest:
                     ax.plot(x_values, y_values, z_values, color = '#000000')
 
         #Adding smooth paths to the map
-        if self.goalfound:
+        if self.goalfound and showspline:
             coords = self.smoothpath
             if len(coords) != 0:
                 ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')

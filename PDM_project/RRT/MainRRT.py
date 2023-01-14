@@ -45,11 +45,11 @@ occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("qu
 #Parcour1
 start = np.array([10, 10, 10])
 goal = np.array([10, 10, 70])
-
+#goal = np.array([10, 70, 10])
 dgoal = 5
 dsearch = 10
 dcheaper = 15
-max_iter = 20000
+max_iter = 25000
 
 #grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
 grid = occupancy_grid
@@ -64,7 +64,11 @@ while graph.iterations():
 endtime = time.time()
 pbar.close()
 print("Time elapsed: ", endtime - starttime)
-graph.makemap()
+graph.makemap(showpath=True, showsimplegraph=True, showspline = False )
+
+graph.plotpathlengths()
+
+
 
 
 
