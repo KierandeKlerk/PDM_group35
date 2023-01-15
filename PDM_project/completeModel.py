@@ -85,10 +85,10 @@ env = RRTAviary(drone_model=drone,
 
 ### Generate waypoints
 path_refit, track_time = env.getPath()
-numWP = int(track_time*control_freq_hz)
-ind = np.round(np.linspace(0, len(path_refit) - 1, numWP)).astype(int)
-fine_waypoints = path_refit[ind,:]
-wp_counter = 0
+numWP = int(track_time*control_freq_hz) # Calculate the amount of waypoints we need based on track_time and the chosen control frequency
+ind = np.round(np.linspace(0, len(path_refit) - 1, numWP)).astype(int) # Choosing indices from the path to make sure the TARGET_POS array is evenly filled up
+fine_waypoints = path_refit[ind,:] # Fill up the TARGET_POS array
+wp_counter = 0 # Initialize the waypoint counter
 
 #### Initialize the logger #################################
 if use_logger:
@@ -103,7 +103,7 @@ ctrl = [DSLPIDControl(drone_model=drone) for i in range(num_drones)]
 
 
 #### Run the simulation ####################################
-CTRL_EVERY_N_STEPS = int(np.floor(env.SIM_FREQ/control_freq_hz))
+CTRL_EVERY_N_STEPS = int(np.floor(env.SIM_FREQ/control_freq_hz)) # Calculate the fraction of the amount of simulation steps control has to be computed
 action = {str(i): np.array([0,0,0,0]) for i in range(num_drones)}
 START = time.time()
 

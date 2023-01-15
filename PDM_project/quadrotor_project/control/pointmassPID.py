@@ -1,4 +1,4 @@
-## PID control class based on BaseControl.py and SimplePIDControl.py from gym_pybullet_drones
+## PID control class inspired by BaseControl.py and SimplePIDControl.py from gym_pybullet_drones
 
 import numpy as np
 import xml.etree.ElementTree as etxml
@@ -15,13 +15,13 @@ class pointmassPID (object):
                  g: float=9.8
                  ):
         #### Set general use constants #############################
-        self.DRONE_MODEL = drone_model
-        self.GRAVITY = g*self._getURDFParameter('m')
-        self.THRUST2WEIGHT = self._getURDFParameter('thrust2weight')
-        self.MAX_THRUST = self.THRUST2WEIGHT*self.GRAVITY
-        self.MAX_ROLL_PITCH = np.pi/4
+        self.DRONE_MODEL = drone_model # Store the drone model
+        self.GRAVITY = g*self._getURDFParameter('m') # Store the weight of the drone
+        self.THRUST2WEIGHT = self._getURDFParameter('thrust2weight') 
+        self.MAX_THRUST = self.THRUST2WEIGHT*self.GRAVITY # Calculate the maximum thrust the drone can exert
+        self.MAX_ROLL_PITCH = np.pi/6 # Set a limit to the pitch and roll of the quadrotor
 
-
+        # Set PID values for Thrust, Roll and Pitch respectively
         self.P_COEFF_T = np.array([1.0, 1.0, 1.0])
         self.I_COEFF_T = np.array([1.0, 1.0, 1.0])
         self.D_COEFF_T = np.array([1.0, 1.0, 1.0])
@@ -56,29 +56,23 @@ class pointmassPID (object):
                                 ):
         """Interface method using `computeControl`.
 
-        It can be used to compute a control action directly from the value of key "state"
-        in the `obs` returned by a call to BaseAviary.step().
-
         Parameters
         ----------
         control_timestep : float
             The time step at which control is computed.
         state : ndarray
-            (20,)-shaped array of floats containing the current state of the drone.
+            (16,)-shaped array of floats containing the current state of the drone.
         target_pos : ndarray
             (3,1)-shaped array of floats containing the desired position.
-        target_rpy : ndarray, optional
         """
         cur_pos=state[0:3]
         cur_quat=state[3:7]
-        cur_vel=state[10:13]
-
+        
         self.control_counter += 1
 
         action = self._computePID(control_timestep, 
-                             cur_pos, 
-                             cur_quat, 
-                             target_pos)
+                                  cur_pos, 
+                                  target_pos)
 
         return action
 
@@ -87,13 +81,12 @@ class pointmassPID (object):
     def _computePID(self,
                     control_timestep,
                     cur_pos,
-                    cur_quat,
                     target_pos):
 
-        pos_e = target_pos - np.array(cur_pos).reshape(3)
-        d_pos_e = (pos_e - self.last_pos_e) / control_timestep
-        self.last_pos_e = pos_e
-        self.integral_pos_e = self.integral_pos_e + pos_e*control_timestep
+        pos_e = target_pos - np.array(cur_pos).reshape(3) # Calculate proportional error
+        d_pos_e = (pos_e - self.last_pos_e) / control_timestep # Calculate derivative error
+        self.last_pos_e = pos_e # Store proportional error for next control step
+        self.integral_pos_e = self.integral_pos_e + pos_e*control_timestep # Calculate integral error
         
         
         ### Calculate target force vector
@@ -116,7 +109,7 @@ class pointmassPID (object):
         action = np.zeros(3)
         action = np.clip(np.append(np.linalg.norm(target_force), target_rpy[:2]), 
                          [0,-self.MAX_ROLL_PITCH, -self.MAX_ROLL_PITCH], 
-                         [self.MAX_THRUST, self.MAX_ROLL_PITCH, self.MAX_ROLL_PITCH])
+                         [self.MAX_THRUST, self.MAX_ROLL_PITCH, self.MAX_ROLL_PITCH]) # Clip the action according to the max thrust and the min and max roll and pitch
 
         return action
 

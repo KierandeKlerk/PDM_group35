@@ -27,13 +27,6 @@ class PointMassAviary(gym.Env):
                  drone_model: DroneModel=DroneModel.CF2P,
                  initial_xyz=None,
                  initial_rpy=None,
-                 goal_xyz = None,
-                 goal_rpy = None,
-                 goal_Vxyz = [0., 0., 0.], 
-                 goal_threshold_pos = 0.005,
-                 goal_threshold_or = 0.01,
-                 goal_threshold_vel = 0.01,
-                 physics: Physics=Physics.PYB,
                  freq: int=240,
                  aggregate_phy_steps: int=1,
                  gui=False,
@@ -53,8 +46,6 @@ class PointMassAviary(gym.Env):
             (3,)-shaped array containing the initial XYZ position of the drone.
         initial_rpy: ndarray | None, optional
             (3,)-shaped array containing the initial orientation of the drone (in radians).
-        physics : Physics, optional
-            The desired implementation of PyBullet physics/custom dynamics.
         freq : int, optional
             The frequency (Hz) at which the physics engine steps.
         aggregate_phy_steps : int, optional
@@ -69,7 +60,8 @@ class PointMassAviary(gym.Env):
             Whether to draw the drones' axes and the GUI RPMs sliders.
         dynamics_attributes : bool, optional
             Whether to allocate the attributes needed by subclasses accepting thrust and torques inputs.
-
+        output_folder: str
+            Where to store log and recording outputs
         """
         #### Constants #############################################
         self.G = 9.8
@@ -84,7 +76,6 @@ class PointMassAviary(gym.Env):
         self.DRONE_MODEL = drone_model
         self.GUI = gui
         self.RECORD = record
-        self.PHYSICS = physics
         self.OBSTACLES = obstacles
         self.USER_DEBUG = user_debug_gui
         self.URDF = self.DRONE_MODEL.value + ".urdf"
@@ -143,9 +134,7 @@ class PointMassAviary(gym.Env):
         else:
             #### Without debug GUI #####################################
             self.CLIENT = p.connect(p.DIRECT)
-            #### Uncomment the following line to use EGL Render Plugin #
-            #### Instead of TinyRender (CPU-based) in PYB's Direct mode
-            # if platform == "linux": p.setAdditionalSearchPath(pybullet_data.getDataPath()); plugin = p.loadPlugin(egl.get_filename(), "_eglRendererPlugin"); print("plugin=", plugin)
+            
             if self.RECORD:
                 #### Set the camera parameters to save frames in DIRECT mode
                 self.VID_WIDTH=int(640)
@@ -178,28 +167,6 @@ class PointMassAviary(gym.Env):
             self.INIT_RPY = initial_rpy
         else:
             print("[ERROR] invalid initial_rpy in PointMassAviary.__init__(), try initial_rpy.reshape(3,1)")
-        #### Set goal poses ########################################
-        if goal_xyz is None: 
-            self.GOAL_XYZ = [1,1,1]
-        elif np.array(goal_xyz).shape == (3,):
-            self.GOAL_XYZ = goal_xyz
-        else:
-            print("[ERROR] invalid goal_xyz in PointMassAviary.__init__(), try goal_xyz.reshape(3,1)")
-        if goal_rpy is None:
-            self.GOAL_RPY = np.zeros(3)
-        elif np.array(goal_rpy).shape == (3,):
-            self.GOAL_RPY = goal_rpy
-        else: 
-            print("[ERROR] invalid goal_rpy in PointMassAviary.__init__(), try goal_rpy.reshape(3,1)")
-        if goal_Vxyz is None:
-            self.GOAL_VXYZ = np.zeros(3)
-        elif np.array(goal_Vxyz).shape == (3,):
-            self.GOAL_VXYZ = goal_Vxyz
-        else: 
-            print("[ERROR] invalid goal_Vxyz in PointMassAviary.__init__(), try goal_Vxyz.reshape(3,1)")
-        self.GOAL_THRESH_POS = goal_threshold_pos
-        self.GOAL_THRESH_OR = goal_threshold_or
-        self.GOAL_THRESH_VEL = goal_threshold_vel
         #### Create action and observation spaces ##################
         self.action_space = self._actionSpace()
         self.observation_space = self._observationSpace()
@@ -235,24 +202,15 @@ class PointMassAviary(gym.Env):
 
         Parameters
         ----------
-        action : ndarray | dict[..]
-            The input action for one or more drones, translated into RPMs by
-            the specific implementation of `_preprocessAction()` in each subclass.
+        action : ndarray 
+            (3,), The input action for the drone, in the form of values for the commanded thrust, roll and pitch
 
         Returns
         -------
-        ndarray | dict[..]
-            The step's observation, check the specific implementation of `_computeObs()`
-            in each subclass for its format.
-        float | dict[..]
-            The step's reward value(s), check the specific implementation of `_computeReward()`
-            in each subclass for its format.
-        bool | dict[..]
-            Whether the current epoisode is over, check the specific implementation of `_computeDone()`
-            in each subclass for its format.
+        ndarray
+            (16,), This step's state.
         dict[..]
-            Additional information as a dictionary, check the specific implementation of `_computeInfo()`
-            in each subclass for its format.
+            Additional information as a dictionary.
 
         """
         #### Save PNG video frames if RECORD=True and GUI=False ####
@@ -267,11 +225,6 @@ class PointMassAviary(gym.Env):
                                                      physicsClientId=self.CLIENT
                                                      )
             (Image.fromarray(np.reshape(rgb, (h, w, 4)), 'RGBA')).save(os.path.join(self.IMG_PATH, "frame_"+str(self.FRAME_NUM)+".png"))
-            #### Save the depth or segmentation view instead #######
-            # dep = ((dep-np.min(dep)) * 255 / (np.max(dep)-np.min(dep))).astype('uint8')
-            # (Image.fromarray(np.reshape(dep, (h, w)))).save(self.IMG_PATH+"frame_"+str(self.FRAME_NUM)+".png")
-            # seg = ((seg-np.min(seg)) * 255 / (np.max(seg)-np.min(seg))).astype('uint8')
-            # (Image.fromarray(np.reshape(seg, (h, w)))).save(self.IMG_PATH+"frame_"+str(self.FRAME_NUM)+".png")
             self.FRAME_NUM += 1
         #### Read the GUI's input parameters #######################
         #### Save, preprocess, and clip the action to the max. RPM #
@@ -281,62 +234,21 @@ class PointMassAviary(gym.Env):
         for _ in range(self.AGGR_PHY_STEPS):
             #### Update and store the drones kinematic info for certain
             #### Between aggregate steps for certain types of update ###
-            if self.AGGR_PHY_STEPS > 1 and self.PHYSICS in [Physics.DYN, Physics.PYB_GND, Physics.PYB_DRAG, Physics.PYB_DW, Physics.PYB_GND_DRAG_DW]:
+            if self.AGGR_PHY_STEPS > 1 :
                 self._updateAndStoreKinematicInformation()
-            #### Step the simulation using the desired physics update ##
-            if self.PHYSICS == Physics.PYB:
-                self._physics(clipped_action)
-            elif self.PHYSICS == Physics.DYN:
-                self._dynamics(clipped_action)
-            elif self.PHYSICS == Physics.PYB_GND:
-                self._physics(clipped_action)
-                self._groundEffect(clipped_action)
-            elif self.PHYSICS == Physics.PYB_DRAG:
-                self._physics(clipped_action)
-                self._drag(self.last_clipped_action)
-            #### PyBullet computes the new state, unless Physics.DYN ###
-            if self.PHYSICS != Physics.DYN:
-                p.stepSimulation(physicsClientId=self.CLIENT)
+            #### Step the simulation ##
+            self._dynamics(clipped_action)
             #### Save the last applied action (e.g. to compute drag) ###
             self.last_clipped_action = clipped_action
         #### Update and store the drones kinematic information #####
         self._updateAndStoreKinematicInformation()
         #### Prepare the return values #############################
         state = self._getDroneStateVector()
-        done = self._computeDone()
         info = self._computeInfo()
         #### Advance the step counter ##############################
         self.step_counter = self.step_counter + (1 * self.AGGR_PHY_STEPS)
 
-        return state, done, info
-    
-    ################################################################################
-    
-    def render(self,
-               mode='human',
-               close=False
-               ):
-        """Prints a textual output of the environment.
-
-        Parameters
-        ----------
-        mode : str, optional
-            Unused.
-        close : bool, optional
-            Unused.
-
-        """
-        if self.first_render_call and not self.GUI:
-            print("[WARNING] PointMassAviary.render() is implemented as text-only, re-initialize the environment using Aviary(gui=True) to use PyBullet's graphical interface")
-            self.first_render_call = False
-        print("\n[INFO] PointMassAviary.render() ——— it {:04d}".format(self.step_counter),
-              "——— wall-clock time {:.1f}s,".format(time.time()-self.RESET_TIME),
-              "simulation time {:.1f}s@{:d}Hz ({:.2f}x)".format(self.step_counter*self.TIMESTEP, self.SIM_FREQ, (self.step_counter*self.TIMESTEP)/(time.time()-self.RESET_TIME)))
-        print("[INFO] PointMassAviary.render() ——— drone",
-                "——— x {:+06.2f}, y {:+06.2f}, z {:+06.2f}".format(self.pos[0], self.pos[1], self.pos[2]),
-                "——— velocity {:+06.2f}, {:+06.2f}, {:+06.2f}".format(self.vel[0], self.vel[1], self.vel[2]),
-                "——— roll {:+06.2f}, pitch {:+06.2f}, yaw {:+06.2f}".format(self.rpy[0]*self.RAD2DEG, self.rpy[1]*self.RAD2DEG, self.rpy[2]*self.RAD2DEG),
-                "——— angular velocity {:+06.4f}, {:+06.4f}, {:+06.4f} ——— ".format(self.ang_v[0], self.ang_v[1], self.ang_v[2]))
+        return state, info  
     
     ################################################################################
 
@@ -399,8 +311,7 @@ class PointMassAviary(gym.Env):
         self.rpy = np.zeros((3,1))
         self.vel = np.zeros((3,1))
         self.ang_v = np.zeros((3,1))
-        if self.PHYSICS == Physics.DYN:
-            self.rpy_rates = np.zeros((3,1))
+        self.rpy_rates = np.zeros((3,1))
         #### Set PyBullet's parameters #############################
         p.setGravity(0, 0, -self.G, physicsClientId=self.CLIENT)
         p.setRealTimeSimulation(0, physicsClientId=self.CLIENT)
@@ -465,99 +376,15 @@ class PointMassAviary(gym.Env):
         Returns
         -------
         ndarray 
-            (20,)-shaped array of floats containing the state vector of the n-th drone.
+            (16,)-shaped array of floats containing the state vector of the n-th drone.
             Check the only line in this method and `_updateAndStoreKinematicInformation()`
             to understand its format.
 
         """
         
         state = np.hstack((self.pos, self.quat, self.rpy,self.vel, self.last_clipped_action.reshape((-1,))))
+        print(state.shape)
         return state.reshape(-1,)
-   
-    ################################################################################
-    
-    def _physics(self,
-                 thrust):
-        """Base PyBullet physics implementation.
-
-        Parameters
-        ----------
-        Thrust, the amount of commanded thrust
-
-        """
-        p.applyExternalForce(   self.DRONE_ID,
-                                -1,
-                                forceObj=[0, 0, thrust],
-                                posObj=[0, 0, 0],
-                                flags=p.LINK_FRAME,
-                                physicsClientId=self.CLIENT
-                                )
-
-    ################################################################################
-
-    def _groundEffect(self,
-                      thrust):
-        """PyBullet implementation of a ground effect model.
-
-        Inspired by the analytical model used for comparison in (Shi et al., 2019).
-
-        Parameters
-        ----------
-        thrust, the amount of commanded thrust
-
-        """
-        #### Kin. info of all links (propellers and center of mass)
-        link_states = np.array(p.getLinkStates(self.DRONE_ID,
-                                               linkIndices=[0, 1, 2, 3, 4],
-                                               computeLinkVelocity=1,
-                                               computeForwardKinematics=1,
-                                               physicsClientId=self.CLIENT
-                                               ))
-        #### Simple, per-propeller ground effects ##################
-        prop_heights = np.array([link_states[0, 0][2], link_states[1, 0][2], link_states[2, 0][2], link_states[3, 0][2]])
-        prop_heights = np.clip(prop_heights, self.GND_EFF_H_CLIP, np.inf)
-        gnd_effects = thrust/4 * self.GND_EFF_COEFF * (self.PROP_RADIUS/(4 * prop_heights))**2
-        if np.abs(self.rpy[0]) < np.pi/2 and np.abs(self.rpy[1]) < np.pi/2:
-            for i in range(4):
-                p.applyExternalForce(self.DRONE_ID,
-                                     i,
-                                     forceObj=[0, 0, gnd_effects[i]],
-                                     posObj=[0, 0, 0],
-                                     flags=p.LINK_FRAME,
-                                     physicsClientId=self.CLIENT
-                                     )
-        #### TODO: a more realistic model accounting for the drone's
-        #### Attitude and its z-axis velocity in the world frame ###
-    
-    ################################################################################
-
-    def _drag(self,
-              thrust
-              ):
-        """PyBullet implementation of a drag model.
-
-        Based on the the system identification in (Forster, 2015).
-
-        Parameters
-        ----------
-        rpm : ndarray
-            (4)-shaped array of ints containing the RPMs values of the 4 motors.
-        nth_drone : int
-            The ordinal number/position of the desired drone in list self.DRONE_IDS.
-
-        """
-        #### Rotation matrix of the base ###########################
-        base_rot = np.array(p.getMatrixFromQuaternion(self.quat)).reshape(3, 3)
-        #### Simple draft model applied to the base/center of mass #
-        drag_factors = -1 * self.DRAG_COEFF * np.sum(np.array(2*np.pi*np.sqrt(thrust)/(60*self.KF*4)))
-        drag = np.dot(base_rot, drag_factors*np.array(self.vel))
-        p.applyExternalForce(self.DRONE_ID,
-                             4,
-                             forceObj=drag,
-                             posObj=[0, 0, 0],
-                             flags=p.LINK_FRAME,
-                             physicsClientId=self.CLIENT
-                             )
     
     ################################################################################
 
@@ -570,7 +397,8 @@ class PointMassAviary(gym.Env):
 
         Parameters
         ----------
-        thrust, commanded thrust
+        ndarray
+            (3,), commanded thrust, roll and pitch
 
         """
         #### Current state #########################################
@@ -595,7 +423,7 @@ class PointMassAviary(gym.Env):
         #### Note: the base's velocity only stored and not used ####
         p.resetBaseVelocity(self.DRONE_ID,
                             vel,
-                            [-1, -1, -1], # ang_vel not computed by DYN
+                            [-1, -1, -1], 
                             physicsClientId=self.CLIENT
                             )
         #### Store the roll, pitch, yaw and respective rates for the next step ####
@@ -615,7 +443,7 @@ class PointMassAviary(gym.Env):
         Parameters
         ----------
         action : ndarray
-            (3)-shaped array of floats (or dictionary of arrays) containing the current thrust and orientation input.
+            (3)-shaped array of floats containing the current thrust and orientation input.
 
         """
         if isinstance(action, np.ndarray):
@@ -629,7 +457,7 @@ class PointMassAviary(gym.Env):
     def _addObstacles(self):
         """Add obstacles to the environment.
 
-        These obstacles are loaded from standard URDF files included in Bullet.
+        These obstacles are loaded from the assets folder of our quadrotor_project package
 
         """
         p.loadURDF(pkg_resources.resource_filename('quadrotor_project', 'assets/track1.urdf'),
@@ -716,8 +544,6 @@ class PointMassAviary(gym.Env):
                           ):
         """Pre-processes the action passed to `.step()` into valid thrust and roll and pitch angles.
 
-        Clips and converts a dictionary into a 2D array.
-
         Parameters
         ----------
         action : dict[str, ndarray]
@@ -726,24 +552,11 @@ class PointMassAviary(gym.Env):
         Returns
         -------
         ndarray
-            (NUM_DRONES, 4)-shaped array of ints containing to clipped RPMs
-            commanded to the 4 motors of each drone.
+            (3,) containing the commanded thrust, roll and pitch
 
         """
         clipped_action = np.clip(action, [0,-np.pi/6, -np.pi/6], [self.MAX_THRUST, np.pi/6, np.pi/6])
         return clipped_action
-
-    ################################################################################
-
-    def _computeDone(self):
-        """Computes computes whether drone is close enough to the goal pose and velocity
-
-            returns bool
-        """
-        if (self.GOAL_THRESH_POS >= np.abs(self.GOAL_XYZ - self.pos).all()) and (self.GOAL_THRESH_OR >= np.abs(self.GOAL_RPY - self.rpy).all()) and (self.GOAL_THRESH_VEL >= np.abs(self.GOAL_Vxyz - self.vel).all()):
-            return True
-        else: 
-            return False
 
     ################################################################################
 

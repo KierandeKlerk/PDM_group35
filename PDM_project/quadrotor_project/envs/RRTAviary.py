@@ -196,7 +196,7 @@ class RRTAviary(CtrlAviary):
                 # Convert path to simulation scale and frame
                 path = np.array(graph.smoothpath).T
                 path = np.append(path,self.INIT_XYZS.reshape(3)[2]/self.grid_pitch*np.ones((len(path),1)), axis = 1) # Append constant height to the path
-                path_refit = path*self.grid_pitch
+                path_refit = path*self.grid_pitch # Rescale the path from grid to real coordinates
                 if self.SAVE_PATH:
                     np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track1.npy"), path_refit) # Save path as npy in assets folder
             else: 
@@ -226,7 +226,7 @@ class RRTAviary(CtrlAviary):
 
                 # Convert path to simulation scale and frame
                 path = np.array(graph.smoothpath).T
-                path_refit = path*self.grid_pitch
+                path_refit = path*self.grid_pitch # Rescale the path from grid to real coordinates
                 if self.SAVE_PATH:
                     np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track{}.npy".format(self.TRACK)), path_refit) # Save path as npy in assets folder
             else: 
