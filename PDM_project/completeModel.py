@@ -29,9 +29,9 @@ Choose a track:
 - 3 for a complex course with obstacle variance in 3D, it is strongly adivsed to set 'loadPath' to True (generating the path from scratch takes about 4 hours of computing on a relatively high end laptop)
 - 4 for a relatively simple but more realistic set of obstacles.
 '''
-track = 4
+track = 5
 
-loadPath = True # Load precomputed path ('track[n].npy' with n the chosen track) from quadrotor_project/assets/, if set to false, the program will pause after margins have been generated while the plot is open, a new plot will be shown right before the simulation starts and thus pause the program while it is open
+loadPath = False # Load precomputed path ('track[n].npy' with n the chosen track) from quadrotor_project/assets/, if set to false, the program will pause after margins have been generated while the plot is open, a new plot will be shown right before the simulation starts and thus pause the program while it is open
 savePath = True # If set to true and loadPath set to False, the computed path will be saved to quadrotor_project/assets/ as 'track[n].npy'
 ########################################################
 
@@ -48,7 +48,7 @@ plot = False # Plot certain data, given use_logger set to true
 user_debug_gui = False 
 aggregate = True
 obstacles = True # Set to True to load visual and collision models of the chosen tracks, if False, the quadrotor will simply follow a the path without chance of collisions
-record_video = True # Set to True in order to record simulation (somehow this generates an mp4 file that is 6 to 4 times faster that it simulation time)
+record_video = False # Set to True in order to record simulation (somehow this generates an mp4 file that is 6 to 4 times faster that it simulation time)
 do_print = False # Print pose every few steps along with other data
 
 

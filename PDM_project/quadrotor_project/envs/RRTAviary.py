@@ -95,6 +95,14 @@ class RRTAviary(CtrlAviary):
             self.max_iter = 20000
             self.track_time = 5
             self.margindepth = 0.2
+        elif self.TRACK == 5:
+            initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
+            initial_rpys = np.array([0,0,0], dtype=np.float64)
+            self.GOAL_XYZ = np.array([17.5, 17.5, 0.5], dtype = np.float64)
+            self.max_iter = 130000
+            self.track_time = 60
+            self.margindepth = 0.2
+            self.grid_pitch = 0.2
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  

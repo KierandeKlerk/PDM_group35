@@ -1,6 +1,5 @@
 import pybullet as p
 import time
-import pybullet_data
 import numpy as np
 import pkg_resources
 from tqdm import tqdm
@@ -18,20 +17,21 @@ from gym_pybullet_drones.utils.utils import sync
 ### Settings ###
 drone = DroneModel("cf2p")
 physics = Physics("dyn")
-gui = True
+gui = True # Set to true for visual simulation
 record = False # If set to true, will record an mp4; somehow 4 times faster than simulation time
 aggregate = True
-obstacles = True
+obstacles = True # Set to true in order to load visual and collision model
 simulation_freq_hz = 240
 control_freq_hz = 48
-duration_sec = 20           
+duration_sec = 20  # Duration of the simulation
+
 # Obstacle and location settings
-obstacleFile = pkg_resources.resource_filename("quadrotor_project", "assets/track1.obj")
-gridPitch = 0.05
+obstacleFile = pkg_resources.resource_filename("quadrotor_project", "assets/track1.obj") # Find path to track1.obj file in quadrotor_project/assets
+gridPitch = 0.05 # Size of grid cells in occupancy grid
 height = 0.8 # in meters 
 start_xy = np.array([0.5, 0.5]) # in meters
 goal_xy = np.array([2, 5]) # in _meters
-dgoal = 5
+dgoal = 5 # Radius around which 
 dsearch = 10
 dcheaper = 15
 max_iter = 6000
