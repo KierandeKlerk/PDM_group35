@@ -31,7 +31,7 @@ Choose a track:
 '''
 track = 4
 
-loadPath = True # Load precomputed path ('track[n].npy' with n the chosen track) from quadrotor_project/assets/
+loadPath = True # Load precomputed path ('track[n].npy' with n the chosen track) from quadrotor_project/assets/, if set to false, the program will pause after margins have been generated while the plot is open, a new plot will be shown right before the simulation starts and thus pause the program while it is open
 savePath = True # If set to true and loadPath set to False, the computed path will be saved to quadrotor_project/assets/ as 'track[n].npy'
 ########################################################
 

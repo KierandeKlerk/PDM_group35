@@ -98,7 +98,7 @@ class RRTAviary(CtrlAviary):
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  
-        
+        # Leave the rest of the initiation to CtrlAviary and BaseAviary
         super().__init__(drone_model=drone_model,
                          num_drones=num_drones,
                          neighbourhood_radius=neighbourhood_radius,
@@ -117,20 +117,19 @@ class RRTAviary(CtrlAviary):
 
     def _addObstacles(self):
         """Add obstacles to the environment.
-
-        These obstacles are loaded from standard URDF files included in Bullet.
+        Overridden function from BaseAviary
+        Load obstacles from quadrotor_project/assets/ or pybullet's files, depending on the track
 
         """
-        print(self.obstacletoadd[:-3]+"urdf")
         self.OBSTACLEID = p.loadURDF(self.obstacletoadd[:-3]+"urdf", physicsClientId=self.CLIENT)
 
     ###############################################################################
 
     def _startVideoRecording(self):
             """Starts the recording of a video output.
-
+            Overridden function from BaseAviary
             The format of the video output is .mp4, if GUI is True, or .png, otherwise.
-            The video is saved under folder `files/videos`.
+            The mp4 video is given a name containing the tracks and whether obstacles are displayed
 
             """
             if self.RECORD and self.GUI:
@@ -159,12 +158,13 @@ class RRTAviary(CtrlAviary):
         
         '''
         if self.TRACK == 0:
+            '''Make a demo spiral path'''
             length = 400
             path_refit = np.zeros((length, 3))
             for i in range(length):
                 path_refit[i] = [i/800*np.cos(i/length*10*np.pi), i/800*np.sin(i/length*10*np.pi), i/600]+self.INIT_XYZS
         elif self.TRACK == 1:
-            if not self.LOAD_PATH:
+            if not self.LOAD_PATH: # If we want to recompute a path based on the on the obj file, self.LOAD_PATH is set to False
                 # Generating occupancy grid
                 occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
@@ -172,30 +172,30 @@ class RRTAviary(CtrlAviary):
                 start = (self.INIT_XYZS.reshape(3)[:2])/self.grid_pitch
                 goal = (self.GOAL_XYZ.reshape(3)[:2])/self.grid_pitch
                 grid2D = occupancyGrid[:,:,0]
-                marginGrid2D = GT.marginWithDepth(grid2D, desiredMarginDepthinMeters=0.2, pitchInMeters=self.grid_pitch)
-                graph = GridRRTstar2D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid2D, marginGrid2D, self.max_iter)
+                marginGrid2D = GT.marginWithDepth(grid2D, desiredMarginDepthinMeters=0.2, pitchInMeters=self.grid_pitch) # Apply a number of margins to the previously generated occupancy grid
+                graph = GridRRTstar2D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid2D, marginGrid2D, self.max_iter) # Generate path using our 2D RRT* algorithm
                 
                 starttime = time.time()
-                pbar = tqdm(total = self.max_iter)
-                graph.makemap()
-                while graph.iterations():
-                    graph.expand()
-                    pbar.update(1)
+                pbar = tqdm(total = self.max_iter) # initialize progress bar
+                graph.makemap() # Plot the occupancy grid with initial position and goal position
+                while graph.iterations(): # Iterate while the number of iterations is inferior to maxiter
+                    graph.expand() # Generate new node and execute checks
+                    pbar.update(1) # Advance progress bar
                 endtime = time.time()
                 pbar.close()
                 print("Time elapsed: ", endtime - starttime)
                 graph.makemap()
                 # Convert path to simulation scale and frame
                 path = np.array(graph.smoothpath).T
-                path = np.append(path,self.INIT_XYZS.reshape(3)[2]/self.grid_pitch*np.ones((len(path),1)), axis = 1)
+                path = np.append(path,self.INIT_XYZS.reshape(3)[2]/self.grid_pitch*np.ones((len(path),1)), axis = 1) # Append constant height to the path
                 path_refit = path*self.grid_pitch
                 if self.SAVE_PATH:
-                    np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track1.npy"), path_refit)
+                    np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track1.npy"), path_refit) # Save path as npy in assets folder
             else: 
-                path_refit = np.load(pkg_resources.resource_filename('quadrotor_project', 'assets/track1.npy'))
+                path_refit = np.load(pkg_resources.resource_filename('quadrotor_project', 'assets/track1.npy')) # Load npy  path file from assets folder
         
-        else:
-            if not self.LOAD_PATH:
+        else: # For all other tracks (not 0 or 1)
+            if not self.LOAD_PATH: # If we want to recompute a path based on the on the obj file, self.LOAD_PATH is set to False
                 # Generating occupancy grid
                 occupancyGrid, _ = GT.generateOccupancyGrid(self.obstacletoadd)
                 
@@ -203,14 +203,14 @@ class RRTAviary(CtrlAviary):
                 start = (self.INIT_XYZS.reshape(3))/self.grid_pitch
                 goal = (self.GOAL_XYZ.reshape(3))/self.grid_pitch
                 grid3D = occupancyGrid
-                marginGrid3D = GT.marginWithDepth(grid3D, desiredMarginDepthinMeters=self.margindepth, pitchInMeters=self.grid_pitch)
-                graph = GridRRTstar3D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid3D, marginGrid3D, self.max_iter)
+                marginGrid3D = GT.marginWithDepth(grid3D, desiredMarginDepthinMeters=self.margindepth, pitchInMeters=self.grid_pitch) # Add a number of margin layers to the occupancy grid
+                graph = GridRRTstar3D(start, goal, self.dgoal, self.dsearch, self.dcheaper, grid3D, marginGrid3D, self.max_iter) # Feed the occupancy grid into our 3D RRT* algorithm
                 starttime = time.time()
-                pbar = tqdm(total = self.max_iter)
-                graph.makemap()
-                while graph.iterations():
-                    graph.expand()
-                    pbar.update(1)
+                pbar = tqdm(total = self.max_iter) # Initialize progress bar
+                graph.makemap() # Plot the occupancy grid with initial position and goal position
+                while graph.iterations(): # Iterate while the number of iterations is inferior to maxiter
+                    graph.expand() # Generate new node and execute checks
+                    pbar.update(1) # Advance progress bar
                 endtime = time.time()
                 pbar.close()
                 print("Time elapsed: ", endtime - starttime)
@@ -220,9 +220,9 @@ class RRTAviary(CtrlAviary):
                 path = np.array(graph.smoothpath).T
                 path_refit = path*self.grid_pitch
                 if self.SAVE_PATH:
-                    np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track{}.npy".format(self.TRACK)), path_refit)
+                    np.save(os.path.join(pkg_resources.resource_filename('quadrotor_project', 'assets/'),"track{}.npy".format(self.TRACK)), path_refit) # Save path as npy in assets folder
             else: 
-                path_refit = np.load(pkg_resources.resource_filename('quadrotor_project', 'assets/track{}.npy'.format(self.TRACK)))
+                path_refit = np.load(pkg_resources.resource_filename('quadrotor_project', 'assets/track{}.npy'.format(self.TRACK))) # Load npy  path file from assets folder
             
         return path_refit, self.track_time
 
