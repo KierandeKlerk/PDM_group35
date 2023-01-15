@@ -1,6 +1,5 @@
 ## PID control class based on BaseControl.py and SimplePIDControl.py from gym_pybullet_drones
 
-import os
 import numpy as np
 import xml.etree.ElementTree as etxml
 import pkg_resources
