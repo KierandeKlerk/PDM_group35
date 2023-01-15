@@ -90,7 +90,7 @@ def marginise_grid2D(grid):
             if checkneighbours2D(grid, x, y, xsize, ysize) or grid[x][y] == 1:
                 newgrid[x][y] = 1
                 count+=1
-    print(f"Found {count} points")
+    print(f"Found {count} points as margins")
     return newgrid
 
 def marginise_grid3D(grid):
@@ -114,7 +114,7 @@ def marginise_grid3D(grid):
                 if checkneighbours3D(grid, x, y, z, xsize, ysize, zsize) or grid[x][y][z] == 1:
                     newgrid[x][y][z] = 1
                     count+=1
-    print(f"Found {count} points")
+    print(f"Found {count} points as margins")
     return newgrid
 
 def marginWithDepth(grid, desiredMarginDepthinMeters=0.1, pitchInMeters=0.05):
