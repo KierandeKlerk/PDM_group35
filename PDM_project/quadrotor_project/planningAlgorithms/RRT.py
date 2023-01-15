@@ -380,7 +380,7 @@ class GridRRTstar3D:
 
                 #Check if this is the first goal encounter
                 if self.goalfound == False:
-                    print("Goal found after", self.iters, "iterations and ", n+1 , "! Searching for better path...")
+                    print("Goal found after", self.iters, "iterations and", n+1, "nodes! Searching for better path...")
 
                     #Make a new node, located on the endpoint, and connect with the node n that was close to the goal
                     self.addnode(self.goal[0], self.goal[1], self.goal[2])
@@ -405,9 +405,9 @@ class GridRRTstar3D:
         '''
         Function that monitors the iterations and gives some information when the maximum is reached
         ''' 
-        self.savepathlength()
+        #self.savepathlength()
         self.iters += 1
-        if self.iters <= self.max_iter:
+        if self.iters < self.max_iter:
             return True
         else: 
             if self.goalfound:
@@ -470,6 +470,14 @@ class GridRRTstar3D:
     ####### Functions for visualizing information #######
     
     def getsimplegraph(self):
+        '''
+        Function that collects the nodenumber of the path, and 2 layers of 
+        childrens of pathnodes for a simpler visualization
+                
+        Outputs
+        ------
+            - simplegraph: list of nodenumbers of path children
+        '''
         simplegraph1 = []
         simplegraph = []
         for i in self.path:
@@ -482,14 +490,23 @@ class GridRRTstar3D:
                 childs = [idx for idx, element in enumerate(self.parent) if element == i]
                 for child in childs:
                     simplegraph.append(child)
+                    simplegraph.append(i)
         return simplegraph
     
     def savepathlength(self):
+        '''
+        Function that saves the pathcost for a certain iteration to keep track of
+        the development of the path
+        '''
+
         if self.goalfound:
             self.pathcosts.append(self.reachcost(self.goalindex))
             self.pathiterations.append(self.iters)
 
     def plotpathlengths(self):
+        '''
+        Function that gives a plot of the path costs versus the iterations
+        '''
         fig1, ax1 = plt.subplots(1, 1)
         ax1.plot(self.pathiterations, self.pathcosts, c = 'b')
         ax1.set_xlabel("Iterations")
@@ -504,7 +521,9 @@ class GridRRTstar3D:
                 
         Inputs
         ------
-            - showpath: show the edges used to go from start to finish in the map if True(bool)
+            - showsimplegraph: shows a simplified version of the graph if True (bool)
+            - showspline: show the spline which smoothly connects the start and endgoal if True (bool)
+            - showpath: show the edges used to go from start to finish in the map if True (bool)
             - showrest: show the edges that are not used in the path from finish to start if True (bool)
             - shownodes: show the nodes in the map if True (bool)
             - showfirstpath: shows the first smooth path found from start to goal in the map if True (bool)
@@ -1059,8 +1078,10 @@ class GridRRTstar2D:
         if len(coords) != 0:
             ax.scatter(coords[0], coords[1], color = '#00FF00')
 
-        #Setting map scale
+        #Setting map scale and axis labels
         ax.set_aspect('equal')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
     
         #Showing map
         plt.show() 
@@ -1391,17 +1412,16 @@ class GridRRT3D:
         '''
         Function that monitors the iterations and gives some information when the maximum is reached
         '''       
-
-        if (self.iters > self.max_iter) or self.goalfound:
+        self.iters += 1            
+        if self.goalfound:
             self.smoothpath = self.getsmoothpath()
-            if self.goalfound:
-                print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
-                print("Cost to reach goal: ", self.reachcost(self.goalindex))
-            else:
-                print("No goal found after ", self.iters, " iterations :( \nMade", len(self.x), "nodes.")
+            print("Goal found with", len(self.x), 'nodes after ', self.iters, " iterations.")
+            print("Cost to reach goal: ", self.reachcost(self.goalindex))
+            return False
+        elif (self.iters > self.max_iter):
+            print("No goal found after ", self.iters, " iterations :( \nMade", len(self.x), "nodes.")
             return False
         else:
-            self.iters += 1
             return True
         
     ####### Functions that compute the final path from start to finish #######
@@ -1453,6 +1473,14 @@ class GridRRT3D:
     ####### Functions for visualizing information #######
 
     def getsimplegraph(self):
+        '''
+        Function that collects the nodenumber of the path, and 2 layers of 
+        childrens of pathnodes for a simpler visualization
+                
+        Outputs
+        ------
+            - simplegraph: list of nodenumbers of path children
+        '''
         simplegraph1 = []
         simplegraph = []
         for i in self.path:
@@ -1470,16 +1498,17 @@ class GridRRT3D:
 
     ####### Visualization #######
 
-    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
+    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
         Inputs
         ------
-            - showpath: show the edges used to go from start to finish in the map if True(bool)
+            - showsimplegraph: shows a simplified version of the graph if True (bool)
+            - showspline: show the spline which smoothly connects the start and endgoal if True (bool)
+            - showpath: show the edges used to go from start to finish in the map if True (bool)           
             - showrest: show the edges that are not used in the path from finish to start if True (bool)
             - shownodes: show the nodes in the map if True (bool)
-            - showfirstpath: shows the first smooth path found from start to goal in the map if True (bool)
         ''' 
 
         #Initialize the figure
@@ -1525,8 +1554,11 @@ class GridRRT3D:
             if len(coords) != 0:
                 ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
 
-        #Setting map scale
+        #Setting map scale and axis labels
         ax.set_aspect('equal')
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
 
         #Showing map
         plt.show()
