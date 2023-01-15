@@ -2,7 +2,7 @@
 name = "quadrotor_project"
 version = "0.0.1"
 description = "Package created for "
-authors = ["Kieran de Klerk <k.j.deklerk-1@student.tudelft.nl>", "Thijs Domburg <>", "Fabian Gebben <>", "Amin Mimoun Bourass <>"]
+authors = ["Kieran de Klerk", "Thijs Domburg", "Fabian Gebben", "Amin Mimoun Bourass"]
 repository = "https://github.com/KierandeKlerk/PDM_group35.git"
 packages = [
     { include = "quadrotor_project" }

@@ -3,6 +3,7 @@ This is the repository for the Planning & Decision-Making (RO47005) final projec
 It contains gym-pybullet-drones as a submodule for the ease of installation of the project.</br>
 
 
+
 ### Authors:
  - Fabian Gebben 
  - Thijs Domburg
@@ -14,10 +15,10 @@ It contains gym-pybullet-drones as a submodule for the ease of installation of t
 
 
 # TO DO
-- Add emailadresses to pyproject.toml
 - Add installation instructions(README)
-- Add goal object without collision
 - Add more convenient camera selection
 
 when you get a ModuleNotFoundError for quadrotor_project, try export PYTHONPATH="${PYTHONPATH}:/path/to/project/" where the project in question is the folder containing the file generating the error.
+
+When running completeModel.py or pointmass.py and recomputing a path, the program pauses while a plot is showing
 
