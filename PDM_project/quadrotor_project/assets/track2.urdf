@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<!-- Relatively simple parcours made by 2 walls with halls in them, affectionately known as 'Hole_obstacle_parcours' -->
 <robot name="track2.urdf">
   <link concave="yes" name="baseLink">
     <inertial>

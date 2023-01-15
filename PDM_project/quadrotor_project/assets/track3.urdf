@@ -1,4 +1,5 @@
 <?xml version="1.0" ?>
+<!-- Complex parcours delimited by walls in multiple directions, affectionately known as 'parcours2' or 'whydoesitkeephittingwalls' -->
 <robot name="track3.urdf">
   <link concave="yes" name="baseLink">
     <inertial>
