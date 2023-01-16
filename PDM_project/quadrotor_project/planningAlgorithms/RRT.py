@@ -80,6 +80,7 @@ class GridRRTstar3D:
         #Initializing goalfound parameter
         self.goalfound = False     
 
+        #Initializing path costs and iterations parameters for path evolution
         self.pathcosts = []
         self.pathiterations = []
 
