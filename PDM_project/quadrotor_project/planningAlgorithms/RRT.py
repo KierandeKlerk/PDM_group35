@@ -386,7 +386,7 @@ class GridRRTstar3D:
                     self.addnode(self.goal[0], self.goal[1], self.goal[2])
                     self.addedge(n)
                     self.goalindex = n+1
-                    #self.max_iter = 1.3 * self.iters
+                    self.max_iter = 1.3 * self.iters
 
                     #Performing RRT* steps: searching for a cheaper node to connect the endnode to (and reconnect if necessary)
                     distances = self.distances(self.goalindex)

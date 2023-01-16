@@ -8,7 +8,7 @@ import pkg_resources
 
 ####### THIS IS A TEST FILE ########
 
-occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("quadrotor_project", "assets/track1.obj"))
+occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("quadrotor_project", "assets/track2.obj"))
 
 ####EXAMPLE GRIDRRT2D
 #(uncomment)
@@ -45,17 +45,17 @@ occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("qu
 # goal = np.array([80, 10, 10])
 
 #Parcour1
-start = np.array([10, 10, 10])
-goal = np.array([40, 100, 10])
+start = np.array([20, 10, 10])
+goal = np.array([110, 40, 40])
 #goal = np.array([10, 70, 10])
 dgoal = 5
 dsearch = 15
 dcheaper = 15
-max_iter = 2000
+max_iter = 40000
 
 #grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
 grid = occupancy_grid
-m_grid3D = GT.marginWithDepth(grid, 0.15)
+m_grid3D = GT.marginWithDepth(grid, 0.10)
 graph = GridRRTstar3D(start, goal, dgoal, dsearch, dcheaper, grid, m_grid3D, max_iter)
 graph.makemap()
 starttime = time.time()
@@ -68,7 +68,7 @@ pbar.close()
 print("Time elapsed: ", endtime - starttime)
 graph.makemap(showpath=True, showsimplegraph=True, showspline = False )
 
-#graph.plotpathlengths()
+graph.plotpathlengths()
 
 
 
