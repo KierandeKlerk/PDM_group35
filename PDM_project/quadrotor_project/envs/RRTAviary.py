@@ -103,6 +103,9 @@ class RRTAviary(CtrlAviary):
             self.track_time = 60
             self.margindepth = 0.2
             self.grid_pitch = 0.2
+            self.dgoal = 5 
+            self.dsearch = 15 
+            self.dcheaper = 20
         else: 
             raise Exception("Track {} is not a valid track".format(self.TRACK))
                  
