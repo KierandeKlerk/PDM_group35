@@ -41,6 +41,7 @@ $ export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
 $ conda create -n drones python=3.8
 $ conda activate drones
 $ pip3 install --upgrade pip
+$ git clone https://github.com/utiasDSL/gym-pybullet-drones.git
 $ cd gym-pybullet-drones/
 $ pip3 install -e .
 ```
