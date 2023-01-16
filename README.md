@@ -20,9 +20,9 @@ This file simulates [gym-pybullet-drones](https://github.com/utiasDSL/gym-pybull
 
 ## RRT demos
 ### [MainRRT.py](PDM_project/RRT/MainRRT.py)
-Hier aub thissoe
+This file containts code to test the RRT classes and their different functions. This is not part of the final product of this project.
 ### [VideoRRT.py](PDM_project/RRT//VideoRRT.py)
-en hier ook @thijsdomurg
+This file contains a copy of the 3D RRT and RRT* classes with modifications to create graph expanding visualisations. It is not part of the final product of this project.
 
 # Installation guide
 This guide is exclusively for installation on Ubuntu based operating systems, though you might be able to adapt this guide's steps for other systems.</br>
