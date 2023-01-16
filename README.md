@@ -10,7 +10,7 @@ Our custom package, [quadrotor_project](PDM_project/quadrotor_project/), offers 
 - [assets/](PDM_project/quadrotor_project/assets/) : contains obstacle mesh and urdf files and precomputed paths as npy files
 - [control/](PDM_project/quadrotor_project/control/) : contains a (PID) control class.
 - [envs/](PDM_project/quadrotor_project/envs/) : contains environment classes inspired by or derived from [BaseAviary](gym-pybullet-drones/gym_pybullet_drones/envs/BaseAviary.py) and [CtrlAviary](gym-pybullet-drones/gym_pybullet_drones/envs/CtrlAviary.py)
-- [planningAlgorithms/](PDM_project/quadrotor_project/planningAlgorithms/) : contains occupancy grid functions and 2 RRT* classes (2D and 3D). 
+- [planningAlgorithms/](PDM_project/quadrotor_project/planningAlgorithms/) : contains occupancy grid functions and 2 RRT* classes (2D and 3D) we wrote. 
 
 ## [pointmass.py](PDM_project/pointmass.py)
 This file simulates the quadrotor as a point mass in [track 1](PDM_project/quadrotor_project/assets/track1.urdf), taking a 2D slice of the generated occupancy grid (see [occupancyGridTools.py](PDM_project/quadrotor_project/planningAlgorithms/occupancyGridTools.py)) to feed it into the GridRRTstar2D (found in [RRT.py](PDM_project/quadrotor_project/planningAlgorithms/RRT.py)). The path generated is then followed by applying PID control (see [pointmassPID.py](PDM_project/quadrotor_project/control/pointmassPID.py)).
@@ -25,16 +25,41 @@ Hier aub thissoe
 en hier ook @thijsdomurg
 
 # Installation guide
-This guide is exclusively for installation on Linux based operating systems, though you might be able to adapt this guide's steps for other systems.</br>
+This guide is exclusively for installation on Ubuntu based operating systems, though you might be able to adapt this guide's steps for other systems.</br>
+Having conda and python 3.7 or 3.8 installed is a prerequisite.</br>
 Firstly, we'll have to clone the repository; open your command terminal and execute the following commands:</br>
 ```
 $ cd path/to/desired/folder
 $ git clone https://github.com/KierandeKlerk/PDM_group35.git
+$ cd PDM_group35
 ```
-Next we'll 
+Next we'll copy some installation commands from [gym-pybullet-drones](https://github.com/utiasDSL/gym-pybullet-drones#readme)
+```
+$ sudo apt install ffmpeg 
+$ export GRPC_PYTHON_BUILD_SYSTEM_OPENSSL=1
+$ export GRPC_PYTHON_BUILD_SYSTEM_ZLIB=1
+$ conda create -n drones python=3.8
+$ conda activate drones
+$ pip3 install --upgrade pip
+$ cd gym-pybullet-drones/
+$ pip3 install -e .
+```
+Now, [gym-pybullet-drones](https://github.com/utiasDSL/gym-pybullet-drones.git) should be fully installed and operable.</br>
+Next we'll prepare our own scripts and modules:
+```
+$ cd ../PDM_project
+$ pip install -e .
+```
+It might be necessary (in some cases) to tell python that files in certain directories should also be able to import [gym-pybullet-drones](https://github.com/utiasDSL/gym-pybullet-drones.git) and [quadrotor_project](PDM_project/quadrotor_project/):
+```
+$ export PYTHONPATH="${PYTHONPATH}:/absolute/path/to/PDM_group35/PDM_project/"
+$ export PYTHONPATH="${PYTHONPATH}:/absolute/path/to/PDM_group35/PDM_project/RRT/"
+```
+# Running a simulation
 
 
-### Authors:
+
+# Authors/Group35:
  - Fabian Gebben 
  - Thijs Domburg
  - Amin Mimoun Bouras
