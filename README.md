@@ -10,7 +10,7 @@ Our custom package, [quadrotor_project](PDM_project/quadrotor_project/), offers 
 - [assets/](PDM_project/quadrotor_project/assets/) : contains obstacle mesh and urdf files and precomputed paths as npy files
 - [control/](PDM_project/quadrotor_project/control/) : contains a (PID) control class.
 - [envs/](PDM_project/quadrotor_project/envs/) : contains environment classes inspired by or derived from [BaseAviary](gym-pybullet-drones/gym_pybullet_drones/envs/BaseAviary.py) and [CtrlAviary](gym-pybullet-drones/gym_pybullet_drones/envs/CtrlAviary.py)
-- [planningAlgorithms/](PDM_project/quadrotor_project/planningAlgorithms/) : contains occupancy grid functions and 2 RRT* classes (2D and 3D) we wrote. 
+- [planningAlgorithms/](PDM_project/quadrotor_project/planningAlgorithms/) : contains occupancy grid functions, a 3D RRT class and 2 RRT* classes (2D and 3D) we wrote. 
 
 ## [pointmass.py](PDM_project/pointmass.py)
 This file simulates the quadrotor as a point mass in [track 1](PDM_project/quadrotor_project/assets/track1.urdf), taking a 2D slice of the generated occupancy grid (see [occupancyGridTools.py](PDM_project/quadrotor_project/planningAlgorithms/occupancyGridTools.py)) to feed it into the GridRRTstar2D (found in [RRT.py](PDM_project/quadrotor_project/planningAlgorithms/RRT.py)). The path generated is then followed by applying PID control (see [pointmassPID.py](PDM_project/quadrotor_project/control/pointmassPID.py)).
@@ -18,7 +18,7 @@ This file simulates the quadrotor as a point mass in [track 1](PDM_project/quadr
 ## [completeModel.py](PDM_project/completeModel.py)
 This file simulates [gym-pybullet-drones](https://github.com/utiasDSL/gym-pybullet-drones.git)'s quadrotor model in any of the provided tracks (see the track selection in the file). The path is again computed from an occupancy grid and fed into an RRT* algorithm (2D or 3D, depending on the chosen track).
 
-## RRT demos
+## RRT tests
 ### [MainRRT.py](PDM_project/RRT/MainRRT.py)
 This file containts code to test the RRT classes and their different functions. This is not part of the final product of this project.
 ### [VideoRRT.py](PDM_project/RRT//VideoRRT.py)
@@ -63,16 +63,4 @@ Additionally, in [completeModel.py](PDM_project/completeModel.py), it is possibl
  - Thijs Domburg
  - Amin Mimoun Bouras
  - Kieran de Klerk
-
-
-
-
-
-# TO DO
-- Add installation instructions(README)
-- Add more convenient camera selection
-
-when you get a ModuleNotFoundError for quadrotor_project, try export PYTHONPATH="${PYTHONPATH}:/path/to/project/" where the project in question is the folder containing the file generating the error.
-
-When running completeModel.py or pointmass.py and recomputing a path, the program pauses while a plot is showing
 
