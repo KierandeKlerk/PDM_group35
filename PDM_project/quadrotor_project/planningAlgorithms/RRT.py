@@ -386,7 +386,7 @@ class GridRRTstar3D:
                     self.addnode(self.goal[0], self.goal[1], self.goal[2])
                     self.addedge(n)
                     self.goalindex = n+1
-                    self.max_iter = 1.3 * self.iters
+                    #self.max_iter = 1.3 * self.iters
 
                     #Performing RRT* steps: searching for a cheaper node to connect the endnode to (and reconnect if necessary)
                     distances = self.distances(self.goalindex)
@@ -406,7 +406,7 @@ class GridRRTstar3D:
         '''
         Function that monitors the iterations and gives some information when the maximum is reached
         ''' 
-        #self.savepathlength()
+        self.savepathlength()
         self.iters += 1
         if self.iters < self.max_iter:
             return True
@@ -516,7 +516,7 @@ class GridRRTstar3D:
 
     ####### Visualization #######
 
-    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
+    def makemap(self, showsimplegraph = False, showspline = True, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
@@ -571,9 +571,9 @@ class GridRRTstar3D:
             firstcoords = self.smoothpathfirst
             coords = self.smoothpath
             if showfirstpath and len(firstcoords) != 0:
-                ax.scatter(firstcoords[0], firstcoords[1], firstcoords[2], color = '#00FFFF')
+                ax.scatter(firstcoords[0], firstcoords[1], firstcoords[2], s = 0.8, color = '#00FFFF')
             if len(coords) != 0:
-                ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
+                ax.scatter(coords[0], coords[1], coords[2], s = 0.8, color = '#00FF00')
 
         #Setting map scale and axis labels
         ax.set_aspect('equal')
@@ -1032,7 +1032,7 @@ class GridRRTstar2D:
     
     ####### Visualization #######
 
-    def makemap(self, showpath = True, showrest = False, shownodes = False, showfirstpath = False):   
+    def makemap(self, showpath = False, showrest = False, shownodes = False, showfirstpath = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
@@ -1076,9 +1076,9 @@ class GridRRTstar2D:
         firstcoords = self.smoothpathfirst
         coords = self.smoothpath
         if showfirstpath and len(firstcoords) != 0:
-            ax.scatter(firstcoords[0], firstcoords[1], color = '#00FFFF')
+            ax.scatter(firstcoords[0], firstcoords[1],  s = 0.8, color = '#00FFFF')
         if len(coords) != 0:
-            ax.scatter(coords[0], coords[1], color = '#00FF00')
+            ax.scatter(coords[0], coords[1],  s = 0.8, color = '#00FF00')
 
         #Setting map scale and axis labels
         ax.set_aspect('equal')
@@ -1500,7 +1500,7 @@ class GridRRT3D:
 
     ####### Visualization #######
 
-    def makemap(self, showsimplegraph = True, showspline = True, showpath = True, showrest = False, shownodes = False):   
+    def makemap(self, showsimplegraph = False, showspline = True, showpath = True, showrest = False, shownodes = False):   
         '''
         Function that plots a map of the environment with the final smooth path
                 
@@ -1554,7 +1554,7 @@ class GridRRT3D:
         if self.goalfound and showspline:
             coords = self.smoothpath
             if len(coords) != 0:
-                ax.scatter(coords[0], coords[1], coords[2], color = '#00FF00')
+                ax.scatter(coords[0], coords[1], coords[2],  s = 0.8, color = '#00FF00')
 
         #Setting map scale and axis labels
         ax.set_aspect('equal')
