@@ -56,7 +56,7 @@ $ export PYTHONPATH="${PYTHONPATH}:/absolute/path/to/PDM_group35/PDM_project/"
 $ export PYTHONPATH="${PYTHONPATH}:/absolute/path/to/PDM_group35/PDM_project/RRT/"
 ```
 # Running a simulation
-Both [pointmass.py](PDM_project/pointmass.py) and [completeModel.py](PDM_project/completeModel.py) have important settings related to the loading and saving of precomputed paths. If you want to have a simulation load quickly, set `loadpath` to `True`, however, if you want to recompute the path, set it to `False` (you might then also want to set `savepath` to `True`, in order to store the path once computed). While `loadpath` is set to `True`, the program will generate 2 plots, one after having generated the occupancy grid, and one after having computed the path (In VS code, by default, the program will pause while these plots are open). </br>
+Both [pointmass.py](PDM_project/pointmass.py) and [completeModel.py](PDM_project/completeModel.py) have important settings related to the loading and saving of precomputed paths. If you want to have a simulation load quickly, set `loadpath` to `True`, however, if you want to recompute the path, set it to `False` (you might then also want to set `savepath` to `True`, in order to store the path once computed). While `loadpath` is set to `False`, the program will generate 2 plots, one after having generated the occupancy grid, and one after having computed the path (In VS code, by default, the program will pause while these plots are open). </br>
 Additionally, in [completeModel.py](PDM_project/completeModel.py), it is possible to select different tracks by altering the value assigned to `track`
 # Authors/Group35:
  - Fabian Gebben 
