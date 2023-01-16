@@ -86,7 +86,7 @@ class RRTAviary(CtrlAviary):
             initial_rpys = np.array([0,0,0], dtype=np.float64)
             self.GOAL_XYZ = np.array([4, 0.5, 0.5], dtype = np.float64)
             self.max_iter = 130000
-            self.track_time = 10
+            self.track_time = 25
             self.margindepth = 0.25
         elif self.TRACK == 4:
             initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
@@ -98,9 +98,9 @@ class RRTAviary(CtrlAviary):
         elif self.TRACK == 5:
             initial_xyzs = np.array([0.5, 0.5, 0.5], dtype = np.float64)
             initial_rpys = np.array([0,0,0], dtype=np.float64)
-            self.GOAL_XYZ = np.array([11, 11, 0.5], dtype = np.float64)
-            self.max_iter = 130000
-            self.track_time = 40
+            self.GOAL_XYZ = np.array([10.5, 11, 0.5], dtype = np.float64)
+            self.max_iter = 90000
+            self.track_time = 7
             self.margindepth = 0.2
             self.grid_pitch = 0.05
             self.dgoal = 5 

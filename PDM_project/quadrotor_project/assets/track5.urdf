@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- Relatively complex parcours containing an unrealistic amount of realistic obstacles, affectionately known as 'warehouseXtreme' -->
+<!-- Relatively complex parcours containing an unrealistic amount of realistic obstacles, affectionately known as 'warehouseXtreme' or 'memorykiller' -->
 <robot name="track5.urdf">
   <link concave="yes" name="baseLink">
     <inertial>
