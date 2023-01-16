@@ -48,7 +48,7 @@ plot = False # Plot certain data, given use_logger set to true
 user_debug_gui = False 
 aggregate = True
 obstacles = True # Set to True to load visual and collision models of the chosen tracks, if False, the quadrotor will simply follow a the path without chance of collisions
-record_video = False # Set to True in order to record simulation (somehow this generates an mp4 file that is 6 to 4 times faster that it simulation time)
+record_video = True # Set to True in order to record simulation (somehow this generates an mp4 file that is 6 to 4 times faster that it simulation time)
 do_print = False # Print pose every few steps along with other data
 
 
