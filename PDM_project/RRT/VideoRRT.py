@@ -3,6 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle
 from scipy import interpolate
 from mpl_toolkits.mplot3d import Axes3D
+from tqdm import tqdm
+import time
+import numpy as np
+import quadrotor_project.planningAlgorithms.occupancyGridTools as GT
+import os
+import pkg_resources
+
 
 ###################################################################################
 
@@ -82,8 +89,11 @@ class GridRRTstar3D_video:
         #Initializing goalfound parameter
         self.goalfound = False     
 
+        #Initializing path costs and iterations parameters for path evolution
         self.pathcosts = []
         self.pathiterations = []
+
+        #Initializing video index parameter
         self.videoindex = 0
 
     ####### Functions to create and remove edges and nodes #######  
@@ -583,6 +593,8 @@ class GridRRTstar3D_video:
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_zlabel("z")
+        
+        #Coding the trajectory of the camera
         nround = 2400
         ntotal = 2800
         if self.iters <= nround:
@@ -594,35 +606,23 @@ class GridRRTstar3D_video:
         else:
             angle1 = 90
             angle2 = -45
-
         ax.view_init(angle1, angle2)
 
+        #Save every 25th iteration as a plot
         if self.iters % 25 == 0:
             plt.savefig('/home/mdomburg/Documents/PDM_Project/RRTplots/RRT-%d.png' %self.videoindex)
             self.videoindex += 1   
         
-        if self.iters == max_iter:
+        #Show plot in beginning and end, close otherwise
+        if (self.iters == max_iter) or (self.iters == 1):
             plt.show()
         else:
-            if self.iters == 1:
-                plt.show()
             plt.close(fig)
-
-        #Showing map
-        #plt.show()
-
-
     
 ######################################################################################
 
 
 ##Testing:
-from tqdm import tqdm
-import time
-import numpy as np
-import quadrotor_project.planningAlgorithms.occupancyGridTools as GT
-import os
-import pkg_resources
 
 occupancy_grid, _ = GT.generateOccupancyGrid(pkg_resources.resource_filename("quadrotor_project", "assets/Videoparcour.obj"))
 
@@ -634,7 +634,6 @@ dsearch = 13
 dcheaper = 19
 max_iter = 3500
 
-#grid = np.load('PDM_group35/PDM_project/RRT/occupancygrid.npy')
 grid = occupancy_grid
 m_grid3D = GT.marginWithDepth(grid, 0.1)
 m_grid3D = grid
